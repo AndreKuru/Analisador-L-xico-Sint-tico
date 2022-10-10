@@ -1,6 +1,6 @@
 Implementar uma estrutura de árvore para o ER
 Função de união de automato
-Ajustar leitura de AF para comportar AFND (e.g 0,&,1-2)
+Ajustar leitura de AF para comportar AFND (e.g 0,&,1-2) - OK
 
 Resolver a questão 2 da prova
   Função de determinazação de AFND
