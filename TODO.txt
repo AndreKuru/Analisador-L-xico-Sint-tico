@@ -1,0 +1,24 @@
+Implementar uma estrutura de árvore para o ER
+Função de união de automato
+Ajustar leitura de AF para comportar AFND (e.g 0,&,1-2)
+
+Resolver a questão 2 da prova
+  Função de determinazação de AFND
+
+Descobrir como fazer a tabela de símbolos AFD -> TS
+---
+Analisador Sintático
+---
+Desenvolver testes para:
+  Conversão de Expressão Regular para Autômato Finito Determinístico (livro do Aho);
+  União de Autômatos via ǫ-transição;
+  Determinização de Autômatos;
+  Construção da TS (incluir palavras reservadas e outras informações pertinentes).
+  (+ os sintáticos)
+
+Desenver um HowTo: para
+  Conversão de Expressão Regular para Autômato Finito Determinístico (livro do Aho);
+  União de Autômatos via ǫ-transição;
+  Determinização de Autômatos;
+  Construção da TS (incluir palavras reservadas e outras informações pertinentes).
+  (+ os sintáticos)

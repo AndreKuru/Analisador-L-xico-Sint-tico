@@ -15,5 +15,12 @@ def lerAF(arquivo):
   automato = AF.AF(estados, estado_inicial, estados_finais, alfabeto, transicoes)
   automato.imprimirAF()
 
+def lerER(arquivo):
+  arquivo = open(arquivo, 'r')
+  arquivo_linhas = arquivo.readlines()
+  for linha in arquivo_linhas:
+    definicoes = linha.split(':')[0]
+    expressoes = linha.split(':')[1]
+
 
 lerAF(sys.argv[1])
