@@ -8,10 +8,10 @@ class AF:
     self.transicoes     = transicoes
 
   def imprimirAF(self):
-    print("Número de estados: ", self.estados)
-    print("Estado inicial: ", self.estado_inicial)
-    print("Estados finais: ", self.estados_finais)
-    print("Alfabeto: ", self.alfabeto)
+    print(f"Número de estados: {self.estados}")
+    print(f"Estado inicial: {self.estado_inicial}") 
+    print(f"Estados finais: {self.estados_finais}") 
+    print(f"Alfabeto: {self.alfabeto}") 
     print("Transições: ")
     for transicao in self.transicoes:
       print(transicao)
