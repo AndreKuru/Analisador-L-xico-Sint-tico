@@ -22,3 +22,6 @@ Desenver um HowTo: para
   Determinização de Autômatos;
   Construção da TS (incluir palavras reservadas e outras informações pertinentes).
   (+ os sintáticos)
+
+
+  INTERNACIONALIZAR!!!!!!
