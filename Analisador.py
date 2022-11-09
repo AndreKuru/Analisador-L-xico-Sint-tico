@@ -26,9 +26,14 @@ def lerAF(arquivo):
 def lerER(arquivo):
   arquivo = open(arquivo, 'r')
   arquivo_linhas = arquivo.readlines()
+  definicoes = list()
+  expressoes = list()
   for linha in arquivo_linhas:
-    definicoes = linha.split(':')[0]
-    expressoes = linha.split(':')[1]
+    definicoes.append(linha.split(': ')[0])
+    expressoes.append(linha.split(': ')[1])
+  print(f"Definições: {definicoes}")
+  print(f"Expressões: {expressoes}") 
+  
 
 def uniaoAutomato(automatos) -> AF:
     estados = 1
@@ -55,7 +60,8 @@ def uniaoAutomato(automatos) -> AF:
 
 
 
-a1 = lerAF(sys.argv[1])
-a2 = lerAF(sys.argv[2])
-a3 = uniaoAutomato([a1, a2])
-a3.imprimirAF()
+#a1 = lerAF(sys.argv[1])
+#a2 = lerAF(sys.argv[2])
+#a3 = uniaoAutomato([a1, a2])
+#a3.imprimirAF()
+lerER(sys.argv[1])

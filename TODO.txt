@@ -6,6 +6,10 @@ Resolver a questão 2 da prova
   Função de determinazação de AFND
 
 Descobrir como fazer a tabela de símbolos AFD -> TS
+
+Substituir as mensagens "ERROR" por exceptions
+
+Deixar o código todo em inglês
 ---
 Analisador Sintático
 ---
