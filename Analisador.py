@@ -57,20 +57,24 @@ def determinizarAutomato(automato) -> AF:
       e_fecho_aux = estados_novos[transicao[0]].union(e_fecho_aux)
       estados_novos[transicao[0]] = e_fecho_aux
       e_fecho.clear()
-  
-  # Impressao de teste
-  print('E-fechos:')
-  print(estados_novos[0])
-  print(estados_novos[1])
-  print(estados_novos[2])
 
   '''1.3 - Define o e-fecho do estado inicial do automato original
         como estado inicial do automato resultante'''
 
+  estado_inicial_novo = list(estados_novos[0])
+
   '''1.4 - Define os conjuntos de estados que contem algum estado final do automato
         original como estados finais do automato resultante'''
 
-  # 1.5 - Para cada transicao do automato original, redefine-a como o e-fecho dela mesma
+  estados_finais = set()
+
+  for estado in estados_novos:
+    for estado_final in automato.estados_finais:
+      if estado_final in estado:
+        estado = frozenset(estado)
+        estados_finais.add(estado)
+
+  '''1.5 - As novas transicoes passam a ser a união dos e-fecho de cada transicao do estado novo'''
 
   '''
   2 - Se nao
