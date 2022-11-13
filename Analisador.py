@@ -53,9 +53,9 @@ def determinizarAutomato(automato) -> AF:
     if '&' in transicao:
       e_fecho = set()
       e_fecho_aux = e_fecho.union(estados_novos[transicao[0]])
-      e_fecho_aux2 = e_fecho_aux.union(estados_novos[transicao[2]])
-      e_fecho_final = estados_novos[transicao[0]].union(e_fecho_aux2)
-      estados_novos[transicao[0]] = e_fecho_final
+      e_fecho_aux = e_fecho_aux.union(estados_novos[transicao[2]])
+      e_fecho_aux = estados_novos[transicao[0]].union(e_fecho_aux)
+      estados_novos[transicao[0]] = e_fecho_aux
       e_fecho.clear()
   
   # Impressao de teste
