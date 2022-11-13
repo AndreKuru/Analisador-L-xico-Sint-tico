@@ -32,8 +32,67 @@ def lerER(arquivo):
     definicoes.append(linha.split(': ')[0])
     expressoes.append(linha.split(': ')[1])
   print(f"Definições: {definicoes}")
-  print(f"Expressões: {expressoes}") 
+  print(f"Expressões: {expressoes}")
+
+def determinizarAutomato(automato) -> AF:
+
+  # 1 - Varrer transicoes em busca de transicoes pelo simbolo de palavra vazia
+
+  # 1.1 - Calcula os e-fechos do automato original
+  estados_novos = [] * automato.estados
+  # 1.1.1 - Adiciona o proprio estado ao seu e-fecho 
+  for i in range(automato.estados):
+    e_fecho = set()
+    e_fecho.add(i)
+    e_fecho_aux = e_fecho.copy()
+    estados_novos.insert(i, e_fecho_aux)
+    e_fecho.clear()
+
+  # 1.1.2 - Adiciona demais estados alcançados por e-transicoes
+  for transicao in automato.transicoes:
+    if '&' in transicao:
+      e_fecho = set()
+      e_fecho_aux = e_fecho.union(estados_novos[transicao[0]])
+      e_fecho_aux2 = e_fecho_aux.union(estados_novos[transicao[2]])
+      e_fecho_final = estados_novos[transicao[0]].union(e_fecho_aux2)
+      estados_novos[transicao[0]] = e_fecho_final
+      e_fecho.clear()
   
+  # Impressao de teste
+  print('E-fechos:')
+  print(estados_novos[0])
+  print(estados_novos[1])
+  print(estados_novos[2])
+
+  '''1.3 - Define o e-fecho do estado inicial do automato original
+        como estado inicial do automato resultante'''
+
+  '''1.4 - Define os conjuntos de estados que contem algum estado final do automato
+        original como estados finais do automato resultante'''
+
+  # 1.5 - Para cada transicao do automato original, redefine-a como o e-fecho dela mesma
+
+  '''
+  2 - Se nao
+  
+    2.1 - Gerar conjunto potencia do conjunto de estados do automato
+
+    2.2 - Definir estado inicial
+
+   2.3 - Gerar conjunto de estados finais
+
+    2.4 - Gerar producoes
+
+      2.4.1 - Para cada estado novo do conjunto potencia
+
+      2.4.2 - Para cada simbolo do alfabeto
+
+      2.4.3 - Adicionar producao ao conjunto de producoes,
+            se nas transicoes originais existia uma transicao
+            de um estado contido no estado novo pelo simbolo
+  '''
+
+  pass
 
 def uniaoAutomato(automatos) -> AF:
     estados = 1
@@ -60,8 +119,9 @@ def uniaoAutomato(automatos) -> AF:
 
 
 
-#a1 = lerAF(sys.argv[1])
+a1 = lerAF(sys.argv[1])
 #a2 = lerAF(sys.argv[2])
 #a3 = uniaoAutomato([a1, a2])
 #a3.imprimirAF()
-lerER(sys.argv[1])
+#lerER(sys.argv[1])
+determinizarAutomato(a1)
