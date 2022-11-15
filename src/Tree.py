@@ -13,9 +13,15 @@ class Node:
   def setAbove(self, newNode):
     self.__above = newNode
 
+  def setNullable(self, nullable):
+    self.__nullable = bool(nullable)
+
   # Getters
   def getData(self):
     return self.__data
+
+  def getLeft(self):
+    return self.__left
 
   def getRight(self):
     return self.__right
@@ -27,6 +33,9 @@ class Node:
     if (self.above == None):
       print("Error")
     return self.__above.getData()
+
+  def getNullable(self):
+    return self.__nullable
 
   # Others
   def isLeaf(self) -> bool:
@@ -62,11 +71,6 @@ class BinaryTree:
     self.currentNode.setRight(newNode)
     self.currentNode = newNode
 
-  # Percorre todos os pais e define a raiz como nodo atual
-  def setCurrentNodeToRoot(self):
-    while (self.currentNode.getAbove() != None):
-      self.currentNode = self.currentNode.getAbove()
-
   # Percorre os pais até achar um parentêse, remove da árvore e define o filho dele como nodo atual
   def closeBracket(self):
 
@@ -84,3 +88,33 @@ class BinaryTree:
     above.setRight(right)
     right.setAbove(above)
     self.currentNode = right
+
+  # Percorre todos os pais e define a raiz como nodo atual
+  def setCurrentNodeToRoot(self):
+    while (self.currentNode.getAbove() != None):
+      self.currentNode = self.currentNode.getAbove()
+
+  def setNullable(self, node):
+    if (node.getLeft() != None):
+      setNullable(node.getLeft())
+    if (node.getRight() != None):
+      setNullable(node.getRight())
+
+    if (node.getNullable() != True):
+      if (node.getData() = "."):
+        if (node.getLeft.getNullable and node.getRight.getNullable):
+          node.setNullable(True)
+        else:
+          node.setNullable(False)
+          
+      if (node.getData() = "|"):
+        if (node.getLeft.getNullable or node.getRight.getNullable):
+          node.setNullable(True)
+        else:
+          node.setNullable(False)
+
+      if (node.getData() = "+")
+        if (node.getLeft.getNullable()):
+          node.setNullable(True)
+        else:
+          node.setNullable(False)

@@ -66,42 +66,95 @@ def generateTree(expression):
       else:
         tree.insertAbove(e, nullable)
 
+#    # TODO
+#    # Define os nodos anuláveis
+#    # Gera tabela a partir da árvore
+#    # Gera automato a partir da tabela
+
 class ER:
 
-  def __init__(self, definitions, expressions) -> None:
-    trees = list()
-
-    count = 0
-    isNewExpression = False
-
-    # Substitui todas definições por suas respectivas expressões em cada expressão existente
-    while (isNewExpression == True and count < 50):
-      isNewExpression = False
-
-      for expression in expressions:
-        fragments = list()
-        for i in range(len(definitions)):
-          fragments = expression.split(definitions(i))
-
-          if (len(fragments)):
-            isNewExpression = True
-            newExpression = list()
-            newExpression.fragments[0]
-
-            for j in range(1, len(fragments)):
-              newExpression.append(expression[i])
-              newExpression.append(fragments[j])
-            
-            expression = ''.join(newExpression)
+  def __init__(self, definitions, self.expressions) -> None:
+    self.definitions = definitions
+    self.self.expressions = self.expressions
+    self.expressionsInUse = set()
+    self.expressionsUntouched = set(definitions)
     
-    if (count >= 50):
-      print("ERROR")
+  def openExpression(index):
+    if (self.expressions[index] in self.expressionsUntouched):
+      self.expressionsUntouched.remove(self.expressions[index])
 
-    # Gera a árvore de cada expressão
-    for expression in expressions:
-      trees.append(generateTree(expression))
+    if (self.expressions[index] in self.expressionsInUse):
+      print("Error")
+    self.expressionsInUse.append(self.expressions[index])
 
-    # TODO
-    # Define os nodos anuláveis
-    # Gera tabela a partir da árvore
-    # Gera automato a partir da tabela
+    fragments = list()
+      for i in range(len(self.definitions)):
+        fragments = self.expressions[index].split(self.definitions[i])
+
+        if (len(fragments)):
+          if (self.definitions[i] in expressionsInUse)
+            print("Error")
+          
+          if (self.expressions[index] not in expressionsUntouched)
+            openExpression(self.expressions[index])
+          
+          newExpression = list()
+          newExpression.fragments[0]
+
+          for j in range(1, len(fragments)):
+            newExpression.append(self.expressions[index][i])
+            newExpression.append(fragments[j])
+          
+          self.expressions[index] ''.join(newExpression)
+
+    self.expressionsInUse.remove(self.expressions[index])
+
+
+
+
+  def generateAF():
+    
+  for i in range(len(self.expressions)):
+    if (self.expressions[i] in self.expressionsUntouched):
+      openExpression(i) # self.openExpression(i)
+
+  self.trees = list()
+  # Gera a árvore de cada expressão
+  for expression in self.expressions:
+    self.trees.append(generateTree(expression))
+
+#
+#
+#    trees = list()
+#
+#    count = 0
+#    isNewExpression = False
+#
+#    # Substitui todas definições por suas respectivas expressões em cada expressão existente
+#    while (isNewExpression == True and count < 50):
+#      isNewExpression = False
+#
+#      for self.expressions[index] in self.expressions:
+#        fragments = list()
+#        for i in range(len(definitions)):
+#          fragments = self.expressions[index].split(definitions(i))
+#
+#          if (len(fragments)):
+#            isNewExpression = True
+#            newExpression = list()
+#            newExpression.fragments[0]
+#
+#            for j in range(1, len(fragments)):
+#              newExpression.append(self.expressions[index][i])
+#              newExpression.append(fragments[j])
+#            
+#            self.expressions[index] = ''.join(newExpression)
+#    
+#    if (count >= 50):
+#      print("ERROR")
+#
+#    # Gera a árvore de cada expressão
+#    for self.expressions[index] in self.expressions:
+#      trees.append(generateTree(self.expressions[index]))
+#
+#
