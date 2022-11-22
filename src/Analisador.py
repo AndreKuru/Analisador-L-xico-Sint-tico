@@ -3,7 +3,7 @@ import sys
 import os
 
 def readFA(arquivo):
-  arquivo = open(arquivo, 'r')
+  arquivo = open(f'tests/{arquivo}', 'r')
   arquivo_linhas = arquivo.readlines()
   arquivo_linhas = [linhas.rstrip("\n") for linhas in arquivo_linhas]
 
@@ -14,11 +14,11 @@ def readFA(arquivo):
   transitions     = list()
   for linha in range(4, len(arquivo_linhas)):
     transition = arquivo_linhas[linha].split(',')
-    if (len(transicao[2]) > 1) :
+    if (len(transition[2]) > 1) :
         for i in transition[2].split('-'):
-            transitions.append([int(transicao[0]), transicao[1], int(i)])
+            transitions.append([int(transition[0]), transition[1], int(i)])
     else:
-        transitions.append([int(transicao[0]), transicao[1], int(transicao[2])])
+        transitions.append([int(transition[0]), transition[1], int(transition[2])])
   automata = AF.AF(states, initial, final_states, alphabet, transitions)
   #automato.imprimirAF()
   return automata
@@ -41,7 +41,7 @@ def determinizeFA(automata) -> AF:
   # 1.1 - Calcula os e-fechos do automato original
   e_closures = dict()
   # 1.1.1 - Adiciona o proprio estado ao seu e-fecho 
-  for i in range(automato.estados):
+  for i in range(automata.states):
     e_closure = set()
     e_closure.add(i)
     e_closure_aux = e_closure.copy()
@@ -49,7 +49,7 @@ def determinizeFA(automata) -> AF:
     e_closure.clear()
 
   # 1.1.2 - Adiciona demais estados alcançados por e-transicoes
-  for transition in automato.transitions:
+  for transition in automata.transitions:
     if '&' in transition:
       e_closure = set()
       e_closure_aux = e_closure.union(e_closures[transition[0]])
@@ -81,21 +81,22 @@ def determinizeFA(automata) -> AF:
   final_states = dict()
 
   for (index, state) in new_states.items():
-    for final_state in automato.final_states:
+    for final_state in automata.final_states:
       if final_state in state:
         final_states[index] = state
 
   # 1.5 - As novas transicoes passam a ser a união dos e-fecho de cada transicao do estado novo
 
-  alphabet_aux = automato.alfabeto.copy()
+  alphabet_aux = automata.alphabet.copy()
   transitions = list()
   for state in new_states.values():
     for sign in alphabet_aux:
-      transitions.append([states, sign, set()])
+      transitions.append([state, sign, set()])
 
-  for transition in automato.transitions:
+  for transition in automata.transitions:
     for i in range(len(transitions)):
-      if transition[0] in transition[i][0] and transition[1] == transition[i][1]:
+      
+      if transition[0] in transitions[i][0] and transition[1] == transitions[i][1]:
         transitions[i][2] = transitions[i][2].union(e_closures[transition[2]])
 
   for (index, state) in new_states.items():
@@ -105,7 +106,7 @@ def determinizeFA(automata) -> AF:
       if state == transition[2]:
         transition[2] = index
 
-  DFA = AF.AF(len(new_states), initial, list(final_states), automato.alphabet, transitions)
+  DFA = AF.AF(len(new_states), initial, list(final_states), automata.alphabet, transitions)
   
   return DFA
 
@@ -148,7 +149,7 @@ def automataUnion(automatas) -> AF:
         for transition in automata.transitions:
             transitions.append([transition[0] + states, transition[1], transition[2] + states])
 
-    states += automato.states
+    states += automata.states
     automata = AF.AF(states, 0, final_states, alphabet, transitions)
     
     return automata
@@ -156,7 +157,7 @@ def automataUnion(automatas) -> AF:
 
 
 
-a1 = readAF(sys.argv[1])
+a1 = readFA(sys.argv[1])
 #a2 = lerAF(sys.argv[2])
 #a3 = uniaoAutomato([a1, a2])
 #a3.imprimirAF()

@@ -1,6 +1,6 @@
 class AF:
 
-  def __init__(self, states, estado_incial, final_states, alphabet, transitions) -> None:
+  def __init__(self, states, initial, final_states, alphabet, transitions) -> None:
     self.states        = states
     self.initial = initial
     self.final_states = final_states
