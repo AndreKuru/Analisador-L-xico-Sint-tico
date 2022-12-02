@@ -101,19 +101,19 @@ class BinaryTree:
       setNullable(node.getRight())
 
     if (node.getNullable() != True):
-      if (node.getData() = "."):
+      if (node.getData() == "."):
         if (node.getLeft.getNullable and node.getRight.getNullable):
           node.setNullable(True)
         else:
           node.setNullable(False)
           
-      if (node.getData() = "|"):
+      if (node.getData() == "|"):
         if (node.getLeft.getNullable or node.getRight.getNullable):
           node.setNullable(True)
         else:
           node.setNullable(False)
 
-      if (node.getData() = "+")
+      if (node.getData() == "+"):
         if (node.getLeft.getNullable()):
           node.setNullable(True)
         else:
