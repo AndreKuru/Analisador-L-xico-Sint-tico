@@ -1,4 +1,4 @@
-import AF
+import FA
 import sys
 import os
 
@@ -7,11 +7,11 @@ def readFA(arquivo):
   arquivo_linhas = arquivo.readlines()
   arquivo_linhas = [linhas.rstrip("\n") for linhas in arquivo_linhas]
 
-  states        = int(arquivo_linhas[0])
-  initial = int(arquivo_linhas[1])
+  states       = int(arquivo_linhas[0])
+  initial      = int(arquivo_linhas[1])
   final_states = set(int(i) for i in arquivo_linhas[2].split(','))
-  alphabet       = set(arquivo_linhas[3].split(','))
-  transitions     = list()
+  alphabet     = set(arquivo_linhas[3].split(','))
+  transitions  = list()
   for linha in range(4, len(arquivo_linhas)):
     transition = arquivo_linhas[linha].split(',')
     if (len(transition[2]) > 1) :
@@ -19,7 +19,7 @@ def readFA(arquivo):
             transitions.append([int(transition[0]), transition[1], int(i)])
     else:
         transitions.append([int(transition[0]), transition[1], int(transition[2])])
-  automata = AF.AF(states, initial, final_states, alphabet, transitions)
+  automata = FA.FA(states, initial, final_states, alphabet, transitions)
   #automato.imprimirAF()
   return automata
 
@@ -34,7 +34,7 @@ def readER(arquivo):
   print(f"Definições: {definitions}")
   print(f"Expressões: {expressions}")
 
-def determinizeFA(automata) -> AF:
+def determinizeFA(automata) -> FA:
 
   # 1 - Varrer transicoes em busca de transicoes pelo simbolo de palavra vazia
 
@@ -106,7 +106,7 @@ def determinizeFA(automata) -> AF:
       if state == transition[2]:
         transition[2] = index
 
-  DFA = AF.AF(len(new_states), initial, list(final_states), automata.alphabet, transitions)
+  DFA = FA.FA(len(new_states), initial, list(final_states), automata.alphabet, transitions)
   
   return DFA
 
@@ -132,25 +132,27 @@ def determinizeFA(automata) -> AF:
 
   pass
 
-def automataUnion(automatas) -> AF:
+def automataUnion(automatas) -> FA:
     states = 1
+    # Estado inicial é sempre 0
+    final_states = set()
     alphabet = set()
-    final_state = set()
     transitions = list()
     
     for automata in automatas:
-        alphabet = alphabet.union(automata.alphabet)
-        aux = [0, '&', automata.initial + states]
-        transitions.append((aux))
+      alphabet = alphabet.union(automata.alphabet)
+      aux = [0, '&', automata.initial + states]
+      transitions.append((aux))
 
-        for final_state in automata.final_states:
-            final.add(final_state + states)
+      for final_state in automata.final_states:
+          final_states.add(final_state + states)
 
-        for transition in automata.transitions:
-            transitions.append([transition[0] + states, transition[1], transition[2] + states])
+      for transition in automata.transitions:
+          transitions.append([transition[0] + states, transition[1], transition[2] + states])
 
-    states += automata.states
-    automata = AF.AF(states, 0, final_states, alphabet, transitions)
+      states += automata.states
+
+    automata = FA.FA(states, 0, final_states, alphabet, transitions)
     
     return automata
 
@@ -163,4 +165,4 @@ a1 = readFA(sys.argv[1])
 #a3.imprimirAF()
 #lerER(sys.argv[1])
 a4 = determinizeFA(a1)
-a4.printAF()
+a4.printFA()

@@ -1,4 +1,4 @@
-from ast import operator
+from ast import operand
 from cmath import exp
 from enum import Enum
 from tkinter import W
@@ -7,7 +7,7 @@ from Tree import BinaryTree
 class ExpressionType(Enum):
   unaryOperation  = 1
   binaryOperation = 2
-  operator        = 3
+  operand        = 3
 
 def getType(char):
   if (char == '*' or
@@ -25,7 +25,7 @@ def getType(char):
       char == '(' or
       char == ')'
      ):
-    return ExpressionType.operator
+    return ExpressionType.operand
   
   print("ERROR")
 
@@ -41,7 +41,7 @@ def generateTree(expression):
 
     # O primeiro símbolo tem de ser um operador
     currentType = getType(expression[0])
-    if (currentType != ExpressionType.operator):
+    if (currentType != ExpressionType.operand):
       print("ERROR")
 
     # Inicializa a árvore
@@ -56,11 +56,11 @@ def generateTree(expression):
       nullable = isNullable(e)
 
       if (lastType == ExpressionType.binaryOperation):
-        if (currentType == ExpressionType.operator):
+        if (currentType == ExpressionType.operand):
           tree.insertRight(e, nullable)
         else:
           print("ERROR")
-      elif (currentType == ExpressionType.operator):
+      elif (currentType == ExpressionType.operand):
         tree.insertAbove('.', False)
         tree.insertRight(e, nullable)
       else:
@@ -73,9 +73,9 @@ def generateTree(expression):
 
 class ER:
 
-  def __init__(self, definitions, self.expressions) -> None:
+  def __init__(self, definitions, expressions) -> None:
     self.definitions = definitions
-    self.self.expressions = self.expressions
+    self.expressions = expressions
     self.expressionsInUse = set()
     self.expressionsUntouched = set(definitions)
     
@@ -88,40 +88,41 @@ class ER:
     self.expressionsInUse.append(self.expressions[index])
 
     fragments = list()
-      for i in range(len(self.definitions)):
-        fragments = self.expressions[index].split(self.definitions[i])
+    for i in range(len(self.definitions)):
+      fragments = self.expressions[index].split(self.definitions[i])
 
-        if (len(fragments)):
-          if (self.definitions[i] in expressionsInUse)
-            print("Error")
-          
-          if (self.expressions[index] not in expressionsUntouched)
-            openExpression(self.expressions[index])
-          
-          newExpression = list()
-          newExpression.fragments[0]
+      if (len(fragments)):
+        if (self.definitions[i] in expressionsInUse):
+          print("Error")
+        
+        if (self.expressions[index] not in expressionsUntouched):
+          openExpression(self.expressions[index])
+        
+        newExpression = list()
+        newExpression.fragments[0]
 
-          for j in range(1, len(fragments)):
-            newExpression.append(self.expressions[index][i])
-            newExpression.append(fragments[j])
-          
-          self.expressions[index] ''.join(newExpression)
+        for j in range(1, len(fragments)):
+          newExpression.append(self.expressions[index][i])
+          newExpression.append(fragments[j])
+        
+        self.expressions[index] = ''.join(newExpression)
 
     self.expressionsInUse.remove(self.expressions[index])
 
 
 
 
-  def generateAF():
+  def generateFA():
     
-  for i in range(len(self.expressions)):
-    if (self.expressions[i] in self.expressionsUntouched):
-      openExpression(i) # self.openExpression(i)
+    # Percorre todas as expressões (ignorando as já abertas)
+    for i in range(len(self.expressions)):
+      if (self.expressions[i] in self.expressionsUntouched):
+        openExpression(i) # self.openExpression(i)
 
-  self.trees = list()
-  # Gera a árvore de cada expressão
-  for expression in self.expressions:
-    self.trees.append(generateTree(expression))
+    self.trees = list()
+    # Gera a árvore de cada expressão
+    for expression in self.expressions:
+      self.trees.append(generateTree(expression))
 
 #
 #

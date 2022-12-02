@@ -1,4 +1,4 @@
-class AF:
+class FA:
 
   def __init__(self, states, initial, final_states, alphabet, transitions) -> None:
     self.states        = states
@@ -7,7 +7,7 @@ class AF:
     self.alphabet       = alphabet
     self.transitions     = transitions
 
-  def printAF(self):
+  def printFA(self):
     print(f"Número de estados: {self.states}")
     print(f"Estado inicial: {self.initial}") 
     print(f"Estados finais: {self.final_states}") 
