@@ -1,38 +1,17 @@
 class Node:
   def __init__(self, data, above, left, right):
     self.__data = data
-    self.__above = above
-    self.__left = left
-    self.__right = right
+    self.above = above
+    self.left = left
+    self.right = right
     self.nullable = False
     self.pos = None
     self.firstpos = set()
     self.lastpos = set()
 
-  # Setters
-  def setRight(self, newNode):
-    self.__right = newNode
-  
-  def setAbove(self, newNode):
-    self.__above = newNode
-
   # Getters
   def getData(self):
     return self.__data
-
-  def getLeft(self):
-    return self.__left
-
-  def getRight(self):
-    return self.__right
-
-  def getAbove(self):
-    return self.__above
-
-  def getAboveData(self):
-    if (self.above == None):
-      print("Error")
-    return self.__above.getData()
 
   # Others
   def isLeaf(self) -> bool:
@@ -48,10 +27,12 @@ class BinaryTree:
   def __init__(self, data):
     self.currentNode = Node(data, None, None, None, False)
     self.highestPos = 0
+    self.posByValue = {}
+    self.followpos = {}
 
   # Insere mais um nodo entre o atual e o pai dele
   def insertAbove(self, data):
-    newNode = Node(data, self.currentNode.getAbove(), self.currentNode, None)
+    newNode = Node(data, self.currentNode.above, self.currentNode, None)
     self.currentNode.setAbove(newNode)
     self.currentNode = newNode
 
@@ -61,7 +42,7 @@ class BinaryTree:
 
   # Insere mais um nodo entre o atual e o filho mais a direita
   def insertRight(self, data):
-    newNode = Node(data, self.currentNode, None, self.currentNode.getRight())
+    newNode = Node(data, self.currentNode, None, self.currentNode.right)
     self.currentNode.setRight(newNode)
     self.currentNode = newNode
 
@@ -76,21 +57,21 @@ class BinaryTree:
       print("ERROR")
 
     while (self.currentNode.getData() != '('):
-      self.currentNode = self.currentNode.getAbove()
+      self.currentNode = self.currentNode.above
       if (self.currentNode == None):
         print("ERROR")
 
     # Remove o nodo com paretêse
-    above = self.currentNode.getAbove()
-    right = self.currentNode.getRight()
+    above = self.currentNode.above
+    right = self.currentNode.right
     above.setRight(right)
     right.setAbove(above)
     self.currentNode = right
 
   # Percorre todos os pais e define a raiz como nodo atual
   def setCurrentNodeToRoot(self):
-    while (self.currentNode.getAbove() != None):
-      self.currentNode = self.currentNode.getAbove()
+    while (self.currentNode.above != None):
+      self.currentNode = self.currentNode.above
 
 #  # Checa e define o nodo passado como anulável de acordo com seu valor e filhos
 #  def setIfNullable(self, node):
@@ -118,66 +99,103 @@ class BinaryTree:
 #        else:
 #          node.setNullable(False)
 
-  # Percorre pelos nodos filhos recursivamente e define firstpos, lastpos de cada um
-  # além do pos das folhas e
-  # se o nodo é anulável
+  # Percorre pelos nodos filhos recursivamente e define firstpos, lastpos de cada nodo
+  # além do pos das folhas,
+  # se o nodo é anulável e
+  # os followpos
   def generateFirstposLastposPosNullable(self, node):
-    if (node.getLeft() != None):
-      self.generateFirstposLastposPosNullable(node.getLeft())
-    if (node.getRight() != None):
-      self.generateFirstposLastposPosNullable(node.getRight())
+    if (node.left != None):
+      self.generateFirstposLastposPosNullable(node.left)
+    if (node.right != None):
+      self.generateFirstposLastposPosNullable(node.right)
 
     # Se o nodo é folha
-    if (not node.getLeft() and 
-        not node.getRight()):
+    if (not node.left and 
+        not node.right):
 
-      self.highestPos += 1
-      node.pos = self.highestPos
-      node.firstpos.add(self.highestPos)
-      node.lastpos.add(self.highestPos)
+      # E não for cadeia vazia
+      if (node.getData() != "&"):
+        # adiciona entrada na tabela dos followpos
+        self.highestPos += 1
+        self.followpos[self.highestPos] = set()
+
+        # agrupa todos os pos de acordo com os seus valores
+        if (node.getData() not in self.posByValue):
+          self.posByValue[node.getData()] = {self.highestPos}
+        else:
+          self.posByValue[node.getData()].add(self.highestPos)
+
+        # define o pos, firstpos e lastpos
+        node.pos = self.highestPos
+        node.firstpos.add(self.highestPos)
+        node.lastpos.add(self.highestPos)
+
+        # a folha sempre será não-anulável quando não for cadeia vazia
     
     # Se o nodo é uma operação
     else:
-      if (node.getData() == '*' or
-          node.getData() == '?'):
+      if (node.getData() == '*'):
 
-          node.firstpos.add(node.getLeft().firstpos)
-          node.lastpos.add(node.getLeft().lastpos)
+          # firstpost, lastpos e nullable
+          node.firstpos.add(node.left.firstpos)
+          node.lastpos.add(node.left.lastpos)
+          node.nullable = True
+
+          # followpos
+          for element in node.lastpos:
+            self.followpos[element].add(node.firstpos)
+        
+      if (node.getData() == '?'):
+
+          # firstpost, lastpos e nullable
+          node.firstpos.add(node.left.firstpos)
+          node.lastpos.add(node.left.lastpos)
           node.nullable = True
         
       if (node.getData() == '+'):
 
-          node.firstpos.add(node.getLeft().firstpos)
-          node.lastpos.add(node.getLeft().lastpos)
+          # firstpost e lastpos
+          node.firstpos.add(node.left.firstpos)
+          node.lastpos.add(node.left.lastpos)
 
-          if (node.getLeft().nullable == True):
+          # nullable
+          if (node.left.nullable == True):
             node.nullable = True
 
       if (node.getData() == '|'):
 
-          node.firstpos.add(node.getLeft().firstpos)
-          node.firstpos.add(node.getRight().firstpos)
+          # firstpos
+          node.firstpos.add(node.left.firstpos)
+          node.firstpos.add(node.right.firstpos)
 
-          node.lastpos.add(node.getLeft().lastpos)
-          node.lastpos.add(node.getRight().lastpos)
+          # lastpos
+          node.lastpos.add(node.left.lastpos)
+          node.lastpos.add(node.right.lastpos)
 
-          if (node.getLeft().nullable == True or
-              node.getRight().nullable == True):
+          # nullable
+          if (node.left.nullable == True or
+              node.right.nullable == True):
             node.nullable = True
 
       if (node.getData() == '.'):
 
-          node.firstpos.add(node.getLeft().firstpos)
-          if (node.getLeft().nullable == True):
-            node.firstpos.add(node.getRight().firstpos)
+          # firstpos
+          node.firstpos.add(node.left.firstpos)
+          if (node.left.nullable == True):
+            node.firstpos.add(node.right.firstpos)
 
-          node.lastpos.add(node.getRight().lastpos)
-          if (node.getRight().nullable == True):
-            node.lastpos.add(node.getLeft().lastpos)
+          # lastpos
+          node.lastpos.add(node.right.lastpos)
+          if (node.right.nullable == True):
+            node.lastpos.add(node.left.lastpos)
 
-          if (node.getLeft().nullable == True and
-              node.getRight().nullable == True):
+          # nullable
+          if (node.left.nullable == True and
+              node.right.nullable == True):
             node.nullable = True
 
-  # TODO followpos
+          # followpos
+          for element in node.left.lastpos:
+            self.followpos[element].add(node.right.firstpos)
+
   # TODO automato (definir estados e transições)
