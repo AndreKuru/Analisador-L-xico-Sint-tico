@@ -15,3 +15,6 @@ class FA:
     print("Transições: ")
     for transition in self.transitions:
       print(transition)
+
+  def generateNewStates(self):
+    
