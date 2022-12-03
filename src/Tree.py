@@ -94,13 +94,13 @@ class BinaryTree:
     while (self.currentNode.getAbove() != None):
       self.currentNode = self.currentNode.getAbove()
 
-  def setNullable(self, node):
+  def setIfNullable(self, node):
     if (node.getLeft() != None):
-      setNullable(node.getLeft())
+      self.setIfNullable(node.getLeft())
     if (node.getRight() != None):
-      setNullable(node.getRight())
+      self.setIfNullable(node.getRight())
 
-    if (node.getNullable() != True):
+    if (not node.getNullable()):
       if (node.getData() == "."):
         if (node.getLeft.getNullable and node.getRight.getNullable):
           node.setNullable(True)

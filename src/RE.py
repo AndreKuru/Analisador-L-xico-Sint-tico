@@ -39,39 +39,45 @@ def isNullable(char):
 
 def generateTree(expression):
 
-    # O primeiro símbolo tem de ser um operador
-    currentType = getType(expression[0])
-    if (currentType != ExpressionType.operand):
-      print("ERROR")
+  # O primeiro símbolo tem de ser um operador
+  currentType = getType(expression[0])
+  if (currentType != ExpressionType.operand):
+    print("ERROR")
 
-    # Inicializa a árvore
-    tree = BinaryTree(expression[0])
+  # Inicializa a árvore
+  tree = BinaryTree(expression[0])
 
-    # Insere todos os símbolos da expressão na árvore
-    for i in range(1, len(expression)):
-      e = expression[i]
+  # Insere todos os símbolos da expressão na árvore
+  for i in range(1, len(expression)):
+    e = expression[i]
 
-      lastType = currentType
-      currentType = getType(e)
-      nullable = isNullable(e)
+    lastType = currentType
+    currentType = getType(e)
+    nullable = isNullable(e)
 
-      if (lastType == ExpressionType.binaryOperation):
-        if (currentType == ExpressionType.operand):
-          tree.insertRight(e, nullable)
-        else:
-          print("ERROR")
-      elif (currentType == ExpressionType.operand):
-        tree.insertAbove('.', False)
+    if (lastType == ExpressionType.binaryOperation):
+      if (currentType == ExpressionType.operand):
         tree.insertRight(e, nullable)
       else:
-        tree.insertAbove(e, nullable)
+        print("ERROR")
+    elif (currentType == ExpressionType.operand):
+      tree.insertAbove('.', False)
+      tree.insertRight(e, nullable)
+    else:
+      tree.insertAbove(e, nullable)
 
-#    # TODO
-#    # Define os nodos anuláveis
-#    # Gera tabela a partir da árvore
-#    # Gera automato a partir da tabela
+  tree.setCurrentNodeToRoot()
 
-class ER:
+  # TODO Tem que implementar o sustenido no finalzinho
+  
+  tree.setIfNullable()
+
+  # TODO firstpos
+  # TODO lastpos
+  # TODO followpos
+  # TODO automato (definir estados e transições)
+
+class RE:
 
   def __init__(self, definitions, expressions) -> None:
     self.definitions = definitions
@@ -79,7 +85,7 @@ class ER:
     self.expressionsInUse = set()
     self.expressionsUntouched = set(definitions)
     
-  def openExpression(index):
+  def openExpression(self, index):
     if (self.expressions[index] in self.expressionsUntouched):
       self.expressionsUntouched.remove(self.expressions[index])
 
