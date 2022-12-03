@@ -29,13 +29,13 @@ def getType(char):
   
   print("ERROR")
 
-def isNullable(char):
-  if (char == '*' or
-      char == '?'
-     ):
-     return True
-
-  return False
+# def isNullable(char):
+#   if (char == '*' or
+#       char == '?'
+#      ):
+#      return True
+# 
+#   return False
 
 def generateTree(expression):
 
@@ -53,27 +53,22 @@ def generateTree(expression):
 
     lastType = currentType
     currentType = getType(e)
-    nullable = isNullable(e)
 
     if (lastType == ExpressionType.binaryOperation):
       if (currentType == ExpressionType.operand):
-        tree.insertRight(e, nullable)
+        tree.insertRight(e)
       else:
         print("ERROR")
     elif (currentType == ExpressionType.operand):
       tree.insertAbove('.', False)
-      tree.insertRight(e, nullable)
+      tree.insertRight(e)
     else:
-      tree.insertAbove(e, nullable)
+      tree.insertAbove(e)
 
   tree.setCurrentNodeToRoot()
 
   # TODO Tem que implementar o sustenido no finalzinho
   
-  tree.setIfNullable()
-
-  # TODO firstpos
-  # TODO lastpos
   # TODO followpos
   # TODO automato (definir estados e transições)
 
@@ -98,11 +93,11 @@ class RE:
       fragments = self.expressions[index].split(self.definitions[i])
 
       if (len(fragments)):
-        if (self.definitions[i] in expressionsInUse):
+        if (self.definitions[i] in self.expressionsInUse):
           print("Error")
         
-        if (self.expressions[index] not in expressionsUntouched):
-          openExpression(self.expressions[index])
+        if (self.expressions[index] not in self.expressionsUntouched):
+          self.openExpression(self.expressions[index])
         
         newExpression = list()
         newExpression.fragments[0]
@@ -118,12 +113,12 @@ class RE:
 
 
 
-  def generateFA():
+  def generateFA(self):
     
     # Percorre todas as expressões (ignorando as já abertas)
     for i in range(len(self.expressions)):
       if (self.expressions[i] in self.expressionsUntouched):
-        openExpression(i) # self.openExpression(i)
+        self.openExpression(i) # self.openExpression(i)
 
     self.trees = list()
     # Gera a árvore de cada expressão

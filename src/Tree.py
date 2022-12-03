@@ -1,10 +1,13 @@
 class Node:
-  def __init__(self, data, above, left, right, nullable):
+  def __init__(self, data, above, left, right):
     self.__data = data
     self.__above = above
     self.__left = left
     self.__right = right
-    self.__nullable = nullable
+    self.nullable = False
+    self.pos = None
+    self.firstpos = set()
+    self.lastpos = set()
 
   # Setters
   def setRight(self, newNode):
@@ -12,9 +15,6 @@ class Node:
   
   def setAbove(self, newNode):
     self.__above = newNode
-
-  def setNullable(self, nullable):
-    self.__nullable = bool(nullable)
 
   # Getters
   def getData(self):
@@ -34,9 +34,6 @@ class Node:
       print("Error")
     return self.__above.getData()
 
-  def getNullable(self):
-    return self.__nullable
-
   # Others
   def isLeaf(self) -> bool:
     if (self.__right == None and
@@ -50,26 +47,27 @@ class BinaryTree:
   # Inicializa a árvore com um ponteiro para o nodo atual
   def __init__(self, data):
     self.currentNode = Node(data, None, None, None, False)
+    self.highestPos = 0
 
   # Insere mais um nodo entre o atual e o pai dele
-  def insertAbove(self, data, nullable):
-    newNode = Node(data, self.currentNode.getAbove(), self.currentNode, None, nullable)
+  def insertAbove(self, data):
+    newNode = Node(data, self.currentNode.getAbove(), self.currentNode, None)
     self.currentNode.setAbove(newNode)
     self.currentNode = newNode
 
-  def insertAbove(self, newNode):
-    self.currentNode.setAbove(newNode)
-    self.currentNode = newNode
+#  def insertAbove(self, newNode):
+#    self.currentNode.setAbove(newNode)
+#    self.currentNode = newNode
 
   # Insere mais um nodo entre o atual e o filho mais a direita
-  def insertRight(self, data, nullable):
-    newNode = Node(data, self.currentNode, None, self.currentNode.getRight(), nullable)
+  def insertRight(self, data):
+    newNode = Node(data, self.currentNode, None, self.currentNode.getRight())
     self.currentNode.setRight(newNode)
     self.currentNode = newNode
 
-  def insertRight(self, newNode):
-    self.currentNode.setRight(newNode)
-    self.currentNode = newNode
+#  def insertRight(self, newNode):
+#    self.currentNode.setRight(newNode)
+#    self.currentNode = newNode
 
   # Percorre os pais até achar um parentêse, remove da árvore e define o filho dele como nodo atual
   def closeBracket(self):
@@ -94,27 +92,92 @@ class BinaryTree:
     while (self.currentNode.getAbove() != None):
       self.currentNode = self.currentNode.getAbove()
 
-  def setIfNullable(self, node):
+#  # Checa e define o nodo passado como anulável de acordo com seu valor e filhos
+#  def setIfNullable(self, node):
+#    if (node.getLeft() != None):
+#      self.setIfNullable(node.getLeft())
+#    if (node.getRight() != None):
+#      self.setIfNullable(node.getRight())
+#
+#    if (not node.getNullable()):
+#      if (node.getData() == "."):
+#        if (node.getLeft.getNullable and node.getRight.getNullable):
+#          node.setNullable(True)
+#        else:
+#          node.setNullable(False)
+#          
+#      if (node.getData() == "|"):
+#        if (node.getLeft.getNullable or node.getRight.getNullable):
+#          node.setNullable(True)
+#        else:
+#          node.setNullable(False)
+#
+#      if (node.getData() == "+"):
+#        if (node.getLeft.getNullable()):
+#          node.setNullable(True)
+#        else:
+#          node.setNullable(False)
+
+  # Percorre pelos nodos filhos recursivamente e define firstpos, lastpos de cada um
+  # além do pos das folhas e
+  # se o nodo é anulável
+  def generateFirstposLastposPosNullable(self, node):
     if (node.getLeft() != None):
-      self.setIfNullable(node.getLeft())
+      self.generateFirstposLastposPosNullable(node.getLeft())
     if (node.getRight() != None):
-      self.setIfNullable(node.getRight())
+      self.generateFirstposLastposPosNullable(node.getRight())
 
-    if (not node.getNullable()):
-      if (node.getData() == "."):
-        if (node.getLeft.getNullable and node.getRight.getNullable):
-          node.setNullable(True)
-        else:
-          node.setNullable(False)
-          
-      if (node.getData() == "|"):
-        if (node.getLeft.getNullable or node.getRight.getNullable):
-          node.setNullable(True)
-        else:
-          node.setNullable(False)
+    # Se o nodo é folha
+    if (not node.getLeft() and 
+        not node.getRight()):
 
-      if (node.getData() == "+"):
-        if (node.getLeft.getNullable()):
-          node.setNullable(True)
-        else:
-          node.setNullable(False)
+      self.highestPos += 1
+      node.pos = self.highestPos
+      node.firstpos.add(self.highestPos)
+      node.lastpos.add(self.highestPos)
+    
+    # Se o nodo é uma operação
+    else:
+      if (node.getData() == '*' or
+          node.getData() == '?'):
+
+          node.firstpos.add(node.getLeft().firstpos)
+          node.lastpos.add(node.getLeft().lastpos)
+          node.nullable = True
+        
+      if (node.getData() == '+'):
+
+          node.firstpos.add(node.getLeft().firstpos)
+          node.lastpos.add(node.getLeft().lastpos)
+
+          if (node.getLeft().nullable == True):
+            node.nullable = True
+
+      if (node.getData() == '|'):
+
+          node.firstpos.add(node.getLeft().firstpos)
+          node.firstpos.add(node.getRight().firstpos)
+
+          node.lastpos.add(node.getLeft().lastpos)
+          node.lastpos.add(node.getRight().lastpos)
+
+          if (node.getLeft().nullable == True or
+              node.getRight().nullable == True):
+            node.nullable = True
+
+      if (node.getData() == '.'):
+
+          node.firstpos.add(node.getLeft().firstpos)
+          if (node.getLeft().nullable == True):
+            node.firstpos.add(node.getRight().firstpos)
+
+          node.lastpos.add(node.getRight().lastpos)
+          if (node.getRight().nullable == True):
+            node.lastpos.add(node.getLeft().lastpos)
+
+          if (node.getLeft().nullable == True and
+              node.getRight().nullable == True):
+            node.nullable = True
+
+  # TODO followpos
+  # TODO automato (definir estados e transições)
