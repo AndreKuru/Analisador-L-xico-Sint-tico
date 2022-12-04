@@ -59,7 +59,7 @@ class FA:
       print('--------------------------')
       print(total_states)
 
-  def determinizeFA(self):
+  def determinizeFAOLD(self):
 
     # 1 - Varrer transicoes em busca de transicoes pelo simbolo de palavra vazia
     if '&' in self.transitions:
@@ -106,18 +106,18 @@ class FA:
       
       final_states = dict()
 
-      for (index, state) in new_states.items():
+      for (index, old_state) in new_states.items():
         for final_state in self.final_states:
-          if final_state in state:
-            final_states[index] = state
+          if final_state in old_state:
+            final_states[index] = old_state
 
       # 1.5 - As novas transicoes passam a ser a união dos e-fecho de cada transicao do estado novo
 
       alphabet_aux = self.alphabet.copy()
       transitions = list()
-      for state in new_states.values():
+      for old_state in new_states.values():
         for sign in alphabet_aux:
-          transitions.append([state, sign, set()])
+          transitions.append([old_state, sign, set()])
 
       for transition in self.transitions:
         for i in range(len(transitions)):
@@ -125,11 +125,11 @@ class FA:
           if transition[0] in transitions[i][0] and transition[1] == transitions[i][1]:
             transitions[i][2] = transitions[i][2].union(e_closures[transition[2]])
 
-      for (index, state) in new_states.items():
+      for (index, old_state) in new_states.items():
         for transition in transitions:
-          if state == transition[0]:
+          if old_state == transition[0]:
             transition[0] = index
-          if state == transition[2]:
+          if old_state == transition[2]:
             transition[2] = index
 
       DFA = FA.FA(len(new_states), self.alphabet, initial, list(final_states), transitions)
@@ -177,3 +177,74 @@ class FA:
               de um estado contido no estado novo pelo simbolo'''
 
     pass
+
+  def determinizeFA(self):
+    # Calcular e fecho
+    e_closures = list()
+    # Adiciona o proprio estado ao seu e-fecho 
+    for i in range(self.total_states):
+      e_closure = {i}
+      e_closures.append(e_closure)
+
+    # Adiciona demais estados alcançados por e-transicoes
+    for transition in self.transitions:
+      if '&' in transition:
+
+        # Adiciona recursivamente em todos os closures que contem aquele estado origem
+        origin_state = transition[0]
+        for index in range(len(e_closures)):
+          if (origin_state in e_closures[index]):
+            destination_state_closure = e_closures[transition[2]]
+            e_closures[index] = e_closures[index].union(destination_state_closure)
+
+    new_states = list()
+    new_states.append(e_closures[self.initial])
+
+    # Inicialização para o while
+    new_transitions = list()
+    i = 0
+
+    alphabet = list(self.alphabet)
+    alphabet.remove('&')
+    alphabet.sort()
+
+    # While para completar todos estados e transições
+    while (i < len(new_states)):
+
+      # Inicializa todas as transições para o estado selecionado
+      for symbol in alphabet:
+        new_transitions.append([
+          i,
+          symbol, 
+          set()
+        ])
+
+
+      #Busca por cada transição de cada estado nos novos estados (que são conjuntos dos estados antigos)
+      # e mescla nas transições do estado novo
+      for old_state in new_states[i]:
+        for symbol in range(len(alphabet)):
+          for transition in self.transitions:
+            if (transition[0] == old_state and
+                transition[1] == alphabet[symbol]):
+                destination_state_closure = e_closures[transition[2]]
+                index = i*len(alphabet) + symbol
+                new_transitions[index][2] = new_transitions[index][2].union(destination_state_closure)
+
+      # Adiciona os estados destinos que não foram apontados ainda
+      for symbol in range(len(alphabet)):
+        index = i*len(alphabet) + symbol
+        destination_state = new_transitions[index][2]
+        if (destination_state not in new_states and
+            destination_state != set()):
+          new_states.append(destination_state)
+
+      i += 1
+    # fim do while
+
+    print(new_states)
+    print(alphabet)
+    for new_transition in new_transitions:
+      print(new_transition)
+
+    
