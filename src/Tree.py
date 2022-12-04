@@ -103,11 +103,11 @@ class BinaryTree:
   # além do pos das folhas,
   # se o nodo é anulável e
   # os followpos
-  def generateFirstposLastposPosNullable(self, node):
+  def fillNodes(self, node):
     if (node.left != None):
-      self.generateFirstposLastposPosNullable(node.left)
+      self.fillNodes(node.left)
     if (node.right != None):
-      self.generateFirstposLastposPosNullable(node.right)
+      self.fillNodes(node.right)
 
     # Se o nodo é folha
     if (not node.left and 
@@ -197,5 +197,17 @@ class BinaryTree:
           # followpos
           for element in node.left.lastpos:
             self.followpos[element].add(node.right.firstpos)
+
+  def fillTree(self):
+    self.setCurrentNodeToRoot()
+    
+    # Insere # no final da árvore e aponta para a raiz
+    self.insertAbove('.')
+    self.insertRight('#')
+    self.currentNode = self.currentNode.above
+
+    # Preenche as propriedades de cada nodo
+    self.fillNodes()
+    
 
   # TODO automato (definir estados e transições)

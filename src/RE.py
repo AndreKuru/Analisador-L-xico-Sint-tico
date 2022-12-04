@@ -60,16 +60,13 @@ def generateTree(expression):
       else:
         print("ERROR")
     elif (currentType == ExpressionType.operand):
-      tree.insertAbove('.', False)
+      tree.insertAbove('.')
       tree.insertRight(e)
     else:
       tree.insertAbove(e)
 
   tree.setCurrentNodeToRoot()
 
-  # TODO Tem que implementar o sustenido no finalzinho
-  
-  # TODO followpos
   # TODO automato (definir estados e transições)
 
 class RE:
