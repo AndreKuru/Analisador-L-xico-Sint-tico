@@ -1,14 +1,14 @@
 class FA:
 
-  def __init__(self, states, initial, final_states, alphabet, transitions) -> None:
-    self.states        = states
-    self.initial = initial
-    self.final_states = final_states
-    self.alphabet       = alphabet
-    self.transitions     = transitions
+  def __init__(self, total_states, alphabet, initial, final_states, transitions) -> None:
+    self.total_states  = total_states
+    self.alphabet      = alphabet
+    self.initial       = initial
+    self.final_states  = final_states
+    self.transitions   = transitions
 
   def printFA(self):
-    print(f"Número de estados: {self.states}")
+    print(f"Número de estados: {self.total_states}")
     print(f"Estado inicial: {self.initial}") 
     print(f"Estados finais: {self.final_states}") 
     print(f"Alfabeto: {self.alphabet}") 
@@ -24,7 +24,7 @@ class FA:
       # 1.1 - Calcula os e-fechos do automato original
       e_closures = dict()
       # 1.1.1 - Adiciona o proprio estado ao seu e-fecho 
-      for i in range(self.states):
+      for i in range(self.total_states):
         e_closure = set()
         e_closure.add(i)
         e_closure_aux = e_closure.copy()
@@ -44,11 +44,11 @@ class FA:
       key_states = list(e_closures)
 
       new_states = dict()
-      for i in range(self.states):
+      for i in range(self.total_states):
         if {key_states[i]} == e_closures[i]:
           new_states[i] = e_closures[i]
         else:  
-          new_states[i + self.states - 1] = e_closures[i]
+          new_states[i + self.total_states - 1] = e_closures[i]
 
       print('ESTADOS NOVOS MAPEADOS')
       print(new_states)
@@ -89,19 +89,19 @@ class FA:
           if state == transition[2]:
             transition[2] = index
 
-      DFA = FA.FA(len(new_states), initial, list(final_states), self.alphabet, transitions)
+      DFA = FA.FA(len(new_states), self.alphabet, initial, list(final_states), transitions)
       
       return DFA
 
     # 2 - Se nao
     else:
       # 2.1 - Criar conjunto de estados
-      states = {}
-      for i in range(self.states):
-        states[i] = {i}
+      total_states = {}
+      for i in range(self.total_states):
+        total_states[i] = {i}
 
       print('-----------------------------------')
-      print(states)
+      print(total_states)
 
       # 2.2 - Percorrer as transições e criar novos estado atingidos
       new_transitions = []
@@ -120,13 +120,13 @@ class FA:
       print(new_transitions)
 
       for transition in new_transitions:
-        if transition[0] not in states.values():
-          states[len(states)] = transition[0]
-        if transition[2] not in states.values():
-          states[len(states)] = transition[2]
+        if transition[0] not in total_states.values():
+          total_states[len(total_states)] = transition[0]
+        if transition[2] not in total_states.values():
+          total_states[len(total_states)] = transition[2]
 
       print('-----------------------------------')
-      print(states)
+      print(total_states)
 
       '''NAO ESTA FUNCIONANDO AINDA'''
 

@@ -1,11 +1,13 @@
+import FA
+
 class Node:
   def __init__(self, data, above, left, right):
-    self.__data = data
-    self.above = above
-    self.left = left
-    self.right = right
+    self.__data   = data
+    self.above    = above
+    self.left     = left
+    self.right    = right
     self.nullable = False
-    self.pos = None
+    self.pos      = None
     self.firstpos = set()
     self.lastpos = set()
 
@@ -208,6 +210,46 @@ class BinaryTree:
 
     # Preenche as propriedades de cada nodo
     self.fillNodes()
-    
 
-  # TODO automato (definir estados e transições)
+  def generateFA(self):
+
+    # Inicialização da lista de estados
+    states = list()
+    states.add(self.currentNode.firstpos)
+
+    # alfabeto do automato
+    alphabet = set(self.posByValue.keys())
+
+    # Inicialização para o while
+    transitions = list()
+    i = 0
+
+    # While para completar todos estados e transições
+    while (i < len(states)):
+      for symbol in alphabet:
+        destionation_state = states[i].intersection(self.postByValue(symbol))
+
+        # Completando estados
+        if (destionation_state not in states):
+          states.add(destionation_state)
+
+        # Completando transições
+        transitions.add([
+          i,
+          symbol, 
+          states.index(destionation_state)
+          ])
+
+      i += 1
+    # fim do while
+
+    # Estados finais são todos aqueles que contém o símbolo final "#"
+    final_states = set()
+
+    for i in range(len(states)):
+      if (self.highestPos in states[i]):
+        final_states.add(i)
+
+
+    return FA(len(states),  alphabet, 0,       final_states, transitions)
+    # new  FA(total_states, alphabet, initial, final_states, transitions)

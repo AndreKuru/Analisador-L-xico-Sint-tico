@@ -29,14 +29,6 @@ def getType(char):
   
   print("ERROR")
 
-# def isNullable(char):
-#   if (char == '*' or
-#       char == '?'
-#      ):
-#      return True
-# 
-#   return False
-
 def generateTree(expression):
 
   # O primeiro símbolo tem de ser um operador
@@ -65,9 +57,7 @@ def generateTree(expression):
     else:
       tree.insertAbove(e)
 
-  tree.setCurrentNodeToRoot()
-
-  # TODO automato (definir estados e transições)
+  tree.fillTree
 
 class RE:
 
@@ -107,10 +97,7 @@ class RE:
 
     self.expressionsInUse.remove(self.expressions[index])
 
-
-
-
-  def generateFA(self):
+  def generateFAs(self):
     
     # Percorre todas as expressões (ignorando as já abertas)
     for i in range(len(self.expressions)):
@@ -122,38 +109,9 @@ class RE:
     for expression in self.expressions:
       self.trees.append(generateTree(expression))
 
-#
-#
-#    trees = list()
-#
-#    count = 0
-#    isNewExpression = False
-#
-#    # Substitui todas definições por suas respectivas expressões em cada expressão existente
-#    while (isNewExpression == True and count < 50):
-#      isNewExpression = False
-#
-#      for self.expressions[index] in self.expressions:
-#        fragments = list()
-#        for i in range(len(definitions)):
-#          fragments = self.expressions[index].split(definitions(i))
-#
-#          if (len(fragments)):
-#            isNewExpression = True
-#            newExpression = list()
-#            newExpression.fragments[0]
-#
-#            for j in range(1, len(fragments)):
-#              newExpression.append(self.expressions[index][i])
-#              newExpression.append(fragments[j])
-#            
-#            self.expressions[index] = ''.join(newExpression)
-#    
-#    if (count >= 50):
-#      print("ERROR")
-#
-#    # Gera a árvore de cada expressão
-#    for self.expressions[index] in self.expressions:
-#      trees.append(generateTree(self.expressions[index]))
-#
-#
+    finite_automatas = list()
+    # Gera o autômato de cada árvore
+    for tree in self.trees:
+      finite_automatas.add(tree.generateFA())
+
+    return finite_automatas

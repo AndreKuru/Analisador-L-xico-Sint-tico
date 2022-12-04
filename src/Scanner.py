@@ -20,7 +20,7 @@ def readFA(arquivo):
             transitions.append([int(transition[0]), transition[1], int(i)])
     else:
         transitions.append([int(transition[0]), transition[1], int(transition[2])])
-  automata = FA.FA(states, initial, final_states, alphabet, transitions)
+  automata = FA.FA(states, alphabet, initial, final_states, transitions)
   #automato.imprimirAF()
   return automata
 
@@ -55,7 +55,7 @@ def automataUnion(automatas) -> FA:
 
       states += automata.states
 
-    automata = FA.FA(states, 0, final_states, alphabet, transitions)
+    automata = FA.FA(states, alphabet, 0, final_states, transitions)
     
     return automata
 
