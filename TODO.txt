@@ -1,6 +1,5 @@
 Implementar uma estrutura de árvore para o ER
-Função de união de automato
-Ajustar leitura de AF para comportar AFND (e.g 0,&,1-2) - OK
+Função de união de automato Ajustar leitura de AF para comportar AFND (e.g 0,&,1-2) - OK
 
 Resolver a questão 2 da prova
   Função de determinazação de AFND
@@ -29,3 +28,11 @@ Desenver um HowTo: para
 
 
   INTERNACIONALIZAR!!!!!!
+
+- Fazer a gramatica (leitura da gramatica passada, implementaçao de alg pra eliminaçao de recursao a esquerda, fatoraçao,  etc)
+- Fazer o Preditivo LL(1)
+- Geraçao de tabela de analise 
+- Descobrir como, nao parece dificil mas nao sabemos como
+- Algoritmo que implementa o automato de pilha pra analise de sentença que faz uso da tabela LL
+- Implementar a validaçao da gramatica livre de contexto
+- Fazer relatório

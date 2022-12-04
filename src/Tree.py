@@ -38,19 +38,11 @@ class BinaryTree:
     self.currentNode.setAbove(newNode)
     self.currentNode = newNode
 
-#  def insertAbove(self, newNode):
-#    self.currentNode.setAbove(newNode)
-#    self.currentNode = newNode
-
   # Insere mais um nodo entre o atual e o filho mais a direita
   def insertRight(self, data):
     newNode = Node(data, self.currentNode, None, self.currentNode.right)
     self.currentNode.setRight(newNode)
     self.currentNode = newNode
-
-#  def insertRight(self, newNode):
-#    self.currentNode.setRight(newNode)
-#    self.currentNode = newNode
 
   # Percorre os pais até achar um parentêse, remove da árvore e define o filho dele como nodo atual
   def closeBracket(self):
@@ -74,32 +66,6 @@ class BinaryTree:
   def setCurrentNodeToRoot(self):
     while (self.currentNode.above != None):
       self.currentNode = self.currentNode.above
-
-#  # Checa e define o nodo passado como anulável de acordo com seu valor e filhos
-#  def setIfNullable(self, node):
-#    if (node.getLeft() != None):
-#      self.setIfNullable(node.getLeft())
-#    if (node.getRight() != None):
-#      self.setIfNullable(node.getRight())
-#
-#    if (not node.getNullable()):
-#      if (node.getData() == "."):
-#        if (node.getLeft.getNullable and node.getRight.getNullable):
-#          node.setNullable(True)
-#        else:
-#          node.setNullable(False)
-#          
-#      if (node.getData() == "|"):
-#        if (node.getLeft.getNullable or node.getRight.getNullable):
-#          node.setNullable(True)
-#        else:
-#          node.setNullable(False)
-#
-#      if (node.getData() == "+"):
-#        if (node.getLeft.getNullable()):
-#          node.setNullable(True)
-#        else:
-#          node.setNullable(False)
 
   # Percorre pelos nodos filhos recursivamente e define firstpos, lastpos de cada nodo
   # além do pos das folhas,
