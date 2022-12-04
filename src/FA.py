@@ -43,16 +43,16 @@ class FA:
         # 1.4 - Varre novamente as transições
         for transition1 in new_transitions:
           source_state = transition1[0]
-          symbol = transition1[1]
+          symbol_index = transition1[1]
           for transition2 in new_transitions:
             # 1.5 - Comparando os estados fonte e o símbolo de transição
             if (source_state.issubset(transition2[0]) and
-                transition2[1] == symbol):
+                transition2[1] == symbol_index):
               transition2[2] = transition2[2].union(transition1[2])
 
-        '''for symbol in self.alphabet:
-          if [current_state, symbol] not in new_transitions:
-            new_transitions.append([current_state, symbol, set()])'''
+        '''for symbol_index in self.alphabet:
+          if [current_state, symbol_index] not in new_transitions:
+            new_transitions.append([current_state, symbol_index, set()])'''
 
       print('--------------------------------')
       print(new_transitions)
@@ -67,11 +67,11 @@ class FA:
       # 1.1 - Calcula os e-fechos do automato original
       e_closures = dict()
       # 1.1.1 - Adiciona o proprio estado ao seu e-fecho 
-      for i in range(self.total_states):
+      for new_state_index in range(self.total_states):
         e_closure = set()
-        e_closure.add(i)
+        e_closure.add(new_state_index)
         e_closure_aux = e_closure.copy()
-        e_closures[i] = e_closure_aux
+        e_closures[new_state_index] = e_closure_aux
         e_closure.clear()
 
       # 1.1.2 - Adiciona demais estados alcançados por e-transicoes
@@ -87,11 +87,11 @@ class FA:
       key_states = list(e_closures)
 
       new_states = dict()
-      for i in range(self.total_states):
-        if {key_states[i]} == e_closures[i]:
-          new_states[i] = e_closures[i]
+      for new_state_index in range(self.total_states):
+        if {key_states[new_state_index]} == e_closures[new_state_index]:
+          new_states[new_state_index] = e_closures[new_state_index]
         else:  
-          new_states[i + self.total_states - 1] = e_closures[i]
+          new_states[new_state_index + self.total_states - 1] = e_closures[new_state_index]
 
       print('ESTADOS NOVOS MAPEADOS')
       print(new_states)
@@ -120,10 +120,10 @@ class FA:
           transitions.append([old_state, sign, set()])
 
       for transition in self.transitions:
-        for i in range(len(transitions)):
+        for new_state_index in range(len(transitions)):
           
-          if transition[0] in transitions[i][0] and transition[1] == transitions[i][1]:
-            transitions[i][2] = transitions[i][2].union(e_closures[transition[2]])
+          if transition[0] in transitions[new_state_index][0] and transition[1] == transitions[new_state_index][1]:
+            transitions[new_state_index][2] = transitions[new_state_index][2].union(e_closures[transition[2]])
 
       for (index, old_state) in new_states.items():
         for transition in transitions:
@@ -140,8 +140,8 @@ class FA:
     else:
       # 2.1 - Criar conjunto de estados
       total_states = {}
-      for i in range(self.total_states):
-        total_states[i] = {i}
+      for new_state_index in range(self.total_states):
+        total_states[new_state_index] = {new_state_index}
 
       # 2.2 - Percorrer as transições e criar novos estado atingidos
       new_transitions = []
@@ -182,8 +182,8 @@ class FA:
     # Calcular e fecho
     e_closures = list()
     # Adiciona o proprio estado ao seu e-fecho 
-    for i in range(self.total_states):
-      e_closure = {i}
+    for state in range(self.total_states):
+      e_closure = {state}
       e_closures.append(e_closure)
 
     # Adiciona demais estados alcançados por e-transicoes
@@ -202,44 +202,44 @@ class FA:
 
     # Inicialização para o while
     new_transitions = list()
-    i = 0
+    new_state_index = 0
 
     alphabet = list(self.alphabet)
     alphabet.remove('&')
     alphabet.sort()
 
     # While para completar todos estados e transições
-    while (i < len(new_states)):
+    while (new_state_index < len(new_states)):
 
       # Inicializa todas as transições para o estado selecionado
-      for symbol in alphabet:
+      for symbol_index in alphabet:
         new_transitions.append([
-          i,
-          symbol, 
+          new_state_index,
+          symbol_index, 
           set()
         ])
 
 
       #Busca por cada transição de cada estado nos novos estados (que são conjuntos dos estados antigos)
       # e mescla nas transições do estado novo
-      for old_state in new_states[i]:
-        for symbol in range(len(alphabet)):
+      for old_state in new_states[new_state_index]:
+        for symbol_index in range(len(alphabet)):
           for transition in self.transitions:
             if (transition[0] == old_state and
-                transition[1] == alphabet[symbol]):
+                transition[1] == alphabet[symbol_index]):
                 destination_state_closure = e_closures[transition[2]]
-                index = i*len(alphabet) + symbol
+                index = new_state_index*len(alphabet) + symbol_index
                 new_transitions[index][2] = new_transitions[index][2].union(destination_state_closure)
 
       # Adiciona os estados destinos que não foram apontados ainda
-      for symbol in range(len(alphabet)):
-        index = i*len(alphabet) + symbol
+      for symbol_index in range(len(alphabet)):
+        index = new_state_index*len(alphabet) + symbol_index
         destination_state = new_transitions[index][2]
         if (destination_state not in new_states and
             destination_state != set()):
           new_states.append(destination_state)
 
-      i += 1
+      new_state_index += 1
     # fim do while
 
     print(new_states)
