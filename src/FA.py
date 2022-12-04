@@ -16,6 +16,49 @@ class FA:
     for transition in self.transitions:
       print(transition)
 
+  def checkNewStates(self, new_transitions, total_states):
+
+    # while(len(total_states) < self.total_states * len(self.alphabet)):
+    
+      # 1 - Varre as transições verificando novos estados
+      for transition in new_transitions:
+        if transition[0] not in total_states.values():
+          total_states[len(total_states)] = transition[0]
+        if transition[2] not in total_states.values():
+          total_states[len(total_states)] = transition[2]
+
+        # 1.1 - Para cada novo estado, verifica as transições de seus subconjuntos
+        current_state = total_states[len(total_states)-1]
+        print('CURRENT STATE ' + str(current_state))
+        for transition in new_transitions:
+          # 1.2 - Ignora as transições do símbolo inicial
+          if transition[0] == {0}:
+            continue
+          # 1.3 - Se encontra um subconjunto, une com o novo estado
+          if transition[0].issubset(current_state):
+            transition[0] = transition[0].union(current_state)
+          if transition[2].issubset(current_state):
+            transition[2] = transition[2].union(current_state)
+
+        # 1.4 - Varre novamente as transições
+        for transition1 in new_transitions:
+          source_state = transition1[0]
+          symbol = transition1[1]
+          for transition2 in new_transitions:
+            # 1.5 - Comparando os estados fonte e o símbolo de transição
+            if (source_state.issubset(transition2[0]) and
+                transition2[1] == symbol):
+              transition2[2] = transition2[2].union(transition1[2])
+
+        '''for symbol in self.alphabet:
+          if [current_state, symbol] not in new_transitions:
+            new_transitions.append([current_state, symbol, set()])'''
+
+      print('--------------------------------')
+      print(new_transitions)
+      print('--------------------------')
+      print(total_states)
+
   def determinizeFA(self):
 
     # 1 - Varrer transicoes em busca de transicoes pelo simbolo de palavra vazia
@@ -100,9 +143,6 @@ class FA:
       for i in range(self.total_states):
         total_states[i] = {i}
 
-      print('-----------------------------------')
-      print(total_states)
-
       # 2.2 - Percorrer as transições e criar novos estado atingidos
       new_transitions = []
       for read_transition in self.transitions:
@@ -115,18 +155,12 @@ class FA:
             pass
         if read_transition_is_new:
           new_transitions.append([{read_transition[0]}, read_transition[1], {read_transition[2]}])
-      
-      print('-----------------------------------')
+
       print(new_transitions)
 
-      for transition in new_transitions:
-        if transition[0] not in total_states.values():
-          total_states[len(total_states)] = transition[0]
-        if transition[2] not in total_states.values():
-          total_states[len(total_states)] = transition[2]
+      #while len(new_transitions) < (self.total_states * len(self.alphabet)):
+      self.checkNewStates(new_transitions, total_states)
 
-      print('-----------------------------------')
-      print(total_states)
 
       '''NAO ESTA FUNCIONANDO AINDA'''
 
