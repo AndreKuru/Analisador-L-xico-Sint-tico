@@ -17,6 +17,7 @@ class GM:
             print(f"{i} -> {self.productions[i]}")
 
     def eliminateLR(self):
+        auxdic = dict()
         for i in (self.productions):
             id = 0
             index = 0
@@ -25,29 +26,44 @@ class GM:
             #A → A α |β
             nonterminal = [i.replace(' ', '') for i in nonterminal[index].split('|')]
             nt = nonterminal[id][0]
+            auxdic[f'{nt}'] = list()
+            auxdic[f'{nt}\''] = list()
             a = []
             for j in range(len(nonterminal)): 
                 if nonterminal[j][index] == i:
-                    a.append(nonterminal[j][index+1])
+                    if nonterminal[j][index+1] != i:
+                        if nonterminal[j][index+1] == nonterminal[j][index+2]:
+                            a.append(str(nonterminal[j][index+1]*2))
+                        else:
+                            a.append(nonterminal[j][index+1])
                     
                     print('there\'s left recursion')
 
                     id += 1
                     if index >= 0:
                         if len(nonterminal[id]) > 1:
-                            b = nonterminal[id][index+1]
+                            b = nonterminal[id][-1]
                         else:
-                            b = nonterminal[id][index]
+                            b = nonterminal[id][-1]
                         #A → βA′
-                        txt = f'{nt}\'->'
-                        for w in a:
-                            txt += f'{w}{nt}\'|'
-                        txt += '&'
+                        auxdic[f'{nt}'] = (f"{b}{nt}\'")
                         print(f"{nt}->{b}{nt}'") 
+                        txt = ''
+                        for w in a:
+                            txt += f'{w}{b}{nt}\'|'
+                        txt += '&'
+                        auxdic[f"{nt}\'"] = txt
                         #A → αA′|ϵ
-                        print(txt)
+                        #print(txt)
+                        
                     id = 0
-         
+        print(auxdic['('])
+        for key, value in auxdic.items():
+            if key.isalpha() or key[0].isalpha():
+                strValue = str(value)
+                self.productions[key] = set([strValue])
+        for key, value in self.productions.items():
+            print(key, value)
     def factoring():
         pass
 
