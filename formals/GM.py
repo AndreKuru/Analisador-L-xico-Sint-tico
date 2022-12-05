@@ -77,12 +77,16 @@ def readGM(file):
 
     initial = str(file_rows[0][0])  # Producao inicial
     productions = dict()  # dicionario contendo todas as producoes
-
     # codigo responsável por ler a Gramatica e encontrar as producoes
+    nopipe = []
     for i in range(len(file_rows)):
         file_one_row = file_rows[i].split(" -> ")
-        productions[file_one_row[0]] = {file_one_row[1]}
-        productions[file_one_row[0]].add(file_one_row[1])
+        nopipe = (file_one_row[1].split(" | "))
+        for body in nopipe:
+            if file_one_row[0] not in productions:
+                productions[file_one_row[0]] = {body}
+            else:
+                productions[file_one_row[0]].add(body)
 
     noterminals = set(
         file_rows[row][0] for row in range(0, len(file_rows))
@@ -108,7 +112,6 @@ def readGM(file):
 
     return initial, productions, noterminals, set(fragments)
 
-    pass
 
 
 initial, productions, noterminals, terminals = readGM(sys.argv[1])
