@@ -4,13 +4,11 @@ import copy
 
 def xsearch(old_class,transition):
     i = 0
-
     while i < len(old_class):
         for x in old_class[i]:
             if x == transition:
-                    return i
+                return i
         i += 1
-    
     return len(old_class)
 
 @dataclass
@@ -26,7 +24,7 @@ class FA:
     def transition(self, state, symbol):
         for t in self.transitions:
             if t[0] == state and t[1] == symbol:
-                return int(t[2])
+                return t
     
     def runFA(self, entry) -> tuple[str, str, str]:
         self.runState(self.initial, entry, "")
@@ -272,7 +270,6 @@ class FA:
                 if not insert:
                     new_class.append({a, b})
         
-        print(new_class)
         print(new_class)
         print("self")
         for i in self.transitions:
