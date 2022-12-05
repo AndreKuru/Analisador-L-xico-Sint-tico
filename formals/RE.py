@@ -15,7 +15,7 @@ def getType(char):
     if char == "*" or char == "+" or char == "?":
         return ExpressionType.unaryOperation
 
-    if char == "|" or char == ".":
+    if char == "|" or char == "·":
         return ExpressionType.binaryOperation
 
     if char.isalnum() or char == "(" or char == ")":
@@ -47,7 +47,7 @@ def generateTree(expression):
             else:
                 print("ERROR")
         elif currentType == ExpressionType.operand:
-            tree.insertAbove(".")
+            tree.insertAbove("·")
             tree.insertRight(e)
         else:
             tree.insertAbove(e)

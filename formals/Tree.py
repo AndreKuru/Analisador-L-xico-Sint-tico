@@ -139,7 +139,7 @@ class BinaryTree:
                 if node.left.nullable == True or node.right.nullable == True:
                     node.nullable = True
 
-            if node.getData() == ".":
+            if node.getData() == "·":
 
                 # firstpos
                 node.firstpos.add(node.left.firstpos)
@@ -163,7 +163,7 @@ class BinaryTree:
         self.setCurrentNodeToRoot()
 
         # Insere # no final da árvore e aponta para a raiz
-        self.insertAbove(".")
+        self.insertAbove("·")
         self.insertRight("#")
         self.currentNode = self.currentNode.above
 
