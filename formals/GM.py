@@ -110,10 +110,13 @@ def readGM(file):
         fragments = new_fragments
         new_fragments = []
 
-    return initial, productions, noterminals, set(fragments)
+    terminals = set(fragments)
+
+    return initial, productions, noterminals, terminals
 
 
 
 initial, productions, noterminals, terminals = readGM(sys.argv[1])
 gm = GM(noterminals, terminals, initial, productions)
 gm.eliminateLR()
+gm.printGM()
