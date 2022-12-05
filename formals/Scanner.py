@@ -71,5 +71,6 @@ a1 = readFA(sys.argv[1])
 # a3.imprimirAF()
 # lerER(sys.argv[1])
 a1.printFA()
-a1.determinizeFA()
-a1.printFA()
+#a1.determinizeFA()
+#a1.printFA()
+a1.minimizeFA();

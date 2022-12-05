@@ -168,7 +168,6 @@ class FA:
         
         
         minimized = copy.deepcopy(self)
-        minimized.determinizeFA()
 
         #remover estados inalcançaveis
         reach = set([minimized.initial])
@@ -218,7 +217,6 @@ class FA:
 
         
         for i in range(len(minimized.transitions) - 1):
-            print("alive =", alive)
             if i >= len(minimized.transitions):
                 break
             else:
