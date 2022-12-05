@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from itertools import combinations
 import copy
 
+
 @dataclass
 class FA:
 
@@ -25,7 +26,7 @@ class FA:
             if transition[0] == current_state and transition[1] == symbol:
                 next_state = transition[2]
 
-# Se próximo estado é morto retorna o token do estado atual (que deve ser final)
+        # Se próximo estado é morto retorna o token do estado atual (que deve ser final)
         if next_state == None:
             for token in self.final_states:
                 if current_state in self.final_states[token]:
@@ -165,11 +166,10 @@ class FA:
             self.transitions.append(tuple(new_transition))
 
     def minimizeFA(self):
-        
-        
+
         minimized = copy.deepcopy(self)
 
-        #remover estados inalcançaveis
+        # remover estados inalcançaveis
         reach = set([minimized.initial])
         new = set([minimized.initial])
         while len(new):
@@ -179,7 +179,10 @@ class FA:
                 print("f = ", state)
                 print("r = ", reach)
                 if type(state) == tuple:
-                    if not minimized.transitions[minimized.transitions.index(state)] in reach:
+                    if (
+                        not minimized.transitions[minimized.transitions.index(state)]
+                        in reach
+                    ):
                         aux.add(minimized.transitions[state])
                 else:
                     if not minimized.transitions[state] in reach:
@@ -187,24 +190,30 @@ class FA:
             reach = reach.union(aux)
             new = aux
 
-        unreach = set([minimized.transitions[i][0] for i in range(len(minimized.transitions))]) - reach
-        
+        unreach = (
+            set(
+                [minimized.transitions[i][0] for i in range(len(minimized.transitions))]
+            )
+            - reach
+        )
+
         for i in range(len(minimized.transitions)):
             if i >= len(minimized.transitions):
                 break
             elif not minimized.transitions[i] in reach:
                 minimized.transitions.remove(minimized.transitions[i])
-        
-        minimized.final_states = {i for i in reach if i in minimized.final_states['token_generic']}
 
-        #remover estados morto
+        minimized.final_states = {
+            i for i in reach if i in minimized.final_states["token_generic"]
+        }
+
+        # remover estados morto
         alive = minimized.final_states
         new = minimized.final_states
 
-
         while len(new):
             aux = set()
-            
+
             for i in range(len(minimized.transitions)):
                 if minimized.transitions[i] in alive:
                     if i[0] not in alive:
@@ -213,22 +222,30 @@ class FA:
             alive = alive.union(aux)
             new = aux
 
-        dead = set([minimized.transitions[i][0] for i in range(len(minimized.transitions))]) - alive
+        dead = (
+            set(
+                [minimized.transitions[i][0] for i in range(len(minimized.transitions))]
+            )
+            - alive
+        )
 
-        
         for i in range(len(minimized.transitions) - 1):
             if i >= len(minimized.transitions):
                 break
             else:
                 if not minimized.transitions[i] in alive:
                     minimized.transitions.remove(minimized.transitions[i])
-        
-        #classes de equivalencia
-        old_class = [minimized.final_states, set([minimized.transitions[i] for i in range(len(minimized.transitions))]).difference(minimized.final_states)]
-    
+
+        # classes de equivalencia
+        old_class = [
+            minimized.final_states,
+            set(
+                [minimized.transitions[i] for i in range(len(minimized.transitions))]
+            ).difference(minimized.final_states),
+        ]
+
         for i in old_class:
             new_class = []
-    
 
             if len(i) < 2:
                 new_class.append(i)
@@ -236,26 +253,32 @@ class FA:
 
             pair = list(combinations(i, 2))
 
-            
-            def search(old_class,transition):
+            def search(old_class, transition):
                 i = 0
 
                 while i < len(old_class):
                     for x in old_class[i]:
                         if x == transition:
-                                return i
+                            return i
                     i += 1
-                
+
                 return len(old_class)
-            
 
             for x in pair:
                 same = True
                 for z in range(len(self.transitions)):
                     a, b = x
                     print(a, b)
-                    if (search(old_class, self.transitions[self.transitions.index(a)][1])) != (search(old_class, self.transitions[self.transitions.index(b)][1])):
-                        print('ok')
+                    if (
+                        search(
+                            old_class, self.transitions[self.transitions.index(a)][1]
+                        )
+                    ) != (
+                        search(
+                            old_class, self.transitions[self.transitions.index(b)][1]
+                        )
+                    ):
+                        print("ok")
 
                     new_class.append(set(a))
                     new_class.append(set(b))
@@ -275,7 +298,7 @@ class FA:
                     new_class.append({a, b})
 
         print(new_class)
-        print('self')
+        print("self")
         for i in self.transitions:
             print(i)
         print("minimized")
