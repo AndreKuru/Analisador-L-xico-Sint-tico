@@ -1,11 +1,14 @@
+from dataclasses import dataclass
+
+@dataclass
 class FA:
 
-  def __init__(self, total_states, alphabet, initial, final_states, transitions) -> None:
-    self.total_states  = total_states
-    self.alphabet      = alphabet
-    self.initial       = initial
-    self.final_states  = final_states
-    self.transitions   = transitions
+  total_states: int
+  alphabet: set[str]
+  initial: int
+  final_states: set[int]
+  transitions: list[list[int | str]]
+  #transitions: list[tuple[int, str, int]]
 
   def printFA(self):
     print(f"Número de estados: {self.total_states}")
@@ -103,5 +106,6 @@ class FA:
 
     # Propriedades restantes atualizadas
     self.total_states = len(new_states)
-    self.alphabet = alphabet
+    self.alphabet = set(alphabet)
     self.initial = 0
+    self.transitions = new_transitions

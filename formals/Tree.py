@@ -1,19 +1,21 @@
-import FA
+from dataclasses import dataclass, field
+from formals.FA import FA
 
+@dataclass
 class Node:
-  def __init__(self, data, above, left, right):
-    self.__data   = data
-    self.above    = above
-    self.left     = left
-    self.right    = right
-    self.nullable = False
-    self.pos      = None
-    self.firstpos = set()
-    self.lastpos = set()
+
+  data: str
+  above: "Node"
+  left: "Node"
+  right: "Node"
+  nullable: bool = False
+  pos: int | None = None
+  firstpos: set[int] = field(default_factory=set)
+  lastpos: set[int] = field(default_factory=set)
 
   # Getters
   def getData(self):
-    return self.__data
+    return self.data
 
   # Others
   def isLeaf(self) -> bool:

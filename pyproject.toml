@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "t1-formais"
+version = "0.1.0"
+description = ""
+authors = ["andrekuru <andrewilliam13@gmail.com>"]
+readme = "README.md"
+packages = [{include = "formals"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
