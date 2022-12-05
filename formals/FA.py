@@ -8,8 +8,8 @@ class FA:
     alphabet: set[str]
     initial: int
     final_states: dict[str, set[int]]
-    transitions: list[list[int | str]]
-    # transitions: list[tuple[int, str, int]]
+    # transitions: list[list[int | str]]
+    transitions: list[tuple[int, str, int]]
 
     def runFA(self, entry) -> tuple[str, str, str]:
         self.runState(self.initial, entry, "")
@@ -159,4 +159,7 @@ class FA:
         self.alphabet = set(alphabet)
         self.initial = 0
         self.final_states = new_final_states
-        self.transitions = new_transitions
+
+        self.transitions = list()
+        for new_transition in new_transitions :
+          self.transitions.append(tuple(new_transition))

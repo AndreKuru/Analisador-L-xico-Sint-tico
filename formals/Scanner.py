@@ -17,9 +17,9 @@ def readFA(arquivo):
         transition = arquivo_linhas[linha].split(",")
         if len(transition[2]) > 1:
             for i in transition[2].split("-"):
-                transitions.append([int(transition[0]), transition[1], int(i)])
+                transitions.append((int(transition[0]), transition[1], int(i)))
         else:
-            transitions.append([int(transition[0]), transition[1], int(transition[2])])
+            transitions.append((int(transition[0]), transition[1], int(transition[2])))
     automata = FA.FA(states, alphabet, initial, final_states, transitions)
     # automato.imprimirAF()
     return automata
