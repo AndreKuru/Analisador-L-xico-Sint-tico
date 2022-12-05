@@ -6,7 +6,7 @@ def test_determinizeFA_with_epslon_transitions():
         4,
         {"a", "b", "&"},
         0,
-        {3},
+        {"token_generic": {3}},
         [
             [0, "&", 1],
             [0, "&", 2],
@@ -22,7 +22,7 @@ def test_determinizeFA_with_epslon_transitions():
         4,
         {"a", "b"},
         0,
-        {0, 2, 3},
+        {"token_generic": {0, 2, 3}},
         [
             [0, "a", 1],
             [0, "b", 2],

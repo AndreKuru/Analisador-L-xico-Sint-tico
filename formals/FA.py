@@ -29,6 +29,7 @@ class FA:
             for token in self.final_states:
                 if current_state in self.final_states[token]:
                     return (token, lexeme, entry)
+            print("Error")
 
         # Se ainda resta entrada continua rodando
         if len(
@@ -141,18 +142,21 @@ class FA:
                 new_transitions[index][2] = new_states.index(destination_state)
                 index += 1
 
-        # Atualiza os estados finais
-        new_final_states = set()
+        # Gera novos estados finais
+        new_final_states = dict()
+        for token in self.final_states:
+          new_final_states[token] = set()
 
         for i in range(len(new_states)):
-            for old_final_state in self.final_states:
-                if old_final_state in new_states[i]:
-                    new_final_states.add(i)
+            for token in self.final_states:
+              for old_final_state in self.final_states[token]:
+                  if old_final_state in new_states[i]:
+                      new_final_states[token].add(i)
 
-        self.final_states = new_final_states
 
-        # Propriedades restantes atualizadas
+        # Atualiza todas propriedades
         self.total_states = len(new_states)
         self.alphabet = set(alphabet)
         self.initial = 0
+        self.final_states = new_final_states
         self.transitions = new_transitions

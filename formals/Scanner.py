@@ -10,7 +10,7 @@ def readFA(arquivo):
 
     states = int(arquivo_linhas[0])
     initial = int(arquivo_linhas[1])
-    final_states = set(int(i) for i in arquivo_linhas[2].split(","))
+    final_states = {"token_generic": set(int(i) for i in arquivo_linhas[2].split(","))}
     alphabet = set(arquivo_linhas[3].split(","))
     transitions = list()
     for linha in range(4, len(arquivo_linhas)):
