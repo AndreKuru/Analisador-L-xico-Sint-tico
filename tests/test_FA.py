@@ -36,3 +36,20 @@ def test_determinizeFA_with_epslon_transitions():
 
     fa.determinizeFA()
     assert fa == expected
+
+
+def test_minimizeFA_with_afdc():
+    fa = FA(
+        3,
+        {"a", "b"},
+        0,
+        {"token": {1, 2}},
+        [(0, "a", 1)(0, "b", 0)(1, "a", 2)(1, "b", 1)(2, "a", 1)(2, "b", 2)],
+    )
+
+    expected = FA(
+        2, {"a", "b"}, 0, {"token": {1}}, [(0, "a", 1)(0, "b", 0)(1, "a", 1)(1, "b", 1)]
+    )
+
+    fa.minimizeFA()
+    assert fa == expected

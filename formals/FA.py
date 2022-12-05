@@ -211,10 +211,6 @@ class FA:
                 minimized.transitions.remove(minimized.transitions[i])
         minimized.final_states = {i for i in reach if i in minimized.final_states['token_generic']}
 
-        minimized.final_states = {
-            i for i in reach if i in minimized.final_states["token_generic"]
-        }
-
         # remover estados morto
         alive = minimized.final_states
         new = minimized.final_states
