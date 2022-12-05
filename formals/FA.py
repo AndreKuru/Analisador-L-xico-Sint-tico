@@ -7,9 +7,55 @@ class FA:
     total_states: int
     alphabet: set[str]
     initial: int
-    final_states: set[int]
+    final_states: dict[str, set[int]]
     transitions: list[list[int | str]]
     # transitions: list[tuple[int, str, int]]
+
+    def runFA(self, entry) -> tuple[str, str, str]:
+        self.runState(self.initial, entry, "")
+
+    def runState(self, current_state, lexeme, entry) -> tuple[str, str, str]:
+        # Lê o primeiro símbolo da entrada
+        symbol = entry[0]
+
+        # Procura o próximo estado
+        next_state = None
+        for transition in self.transitions:
+            if transition[0] == current_state and transition[1] == symbol:
+                next_state = transition[2]
+
+        # Se próximo estado é morto retorna o token do estado atual (que deve ser final)
+        if next_state == None:
+            for token in self.final_states:
+                if current_state in self.final_states[token]:
+                    return (token, lexeme, entry)
+
+        # Se ainda resta entrada continua rodando
+        if len(
+            entry[
+                1,
+            ]
+        ):
+            return self.runState(
+                next_state,
+                lexeme + symbol,
+                entry[
+                    1,
+                ],
+            )
+
+        # Se não soubrar entrada retorna o token do estado atual (que deve ser final)
+        for token in self.final_states:
+            if current_state in self.final_states[token]:
+                return (
+                    token,
+                    lexeme + symbol,
+                    entry[
+                        1,
+                    ],
+                )
+
+        print("Error")
 
     def printFA(self):
         print(f"Número de estados: {self.total_states}")

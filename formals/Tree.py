@@ -19,7 +19,6 @@ class Node:
         return self.data
 
 
-
 class BinaryTree:
 
     # Inicializa a árvore com um ponteiro para o nodo atual
