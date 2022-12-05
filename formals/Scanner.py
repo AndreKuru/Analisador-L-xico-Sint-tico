@@ -37,7 +37,7 @@ def readER(arquivo):
     print(f"Expressões: {expressions}")
 
 
-def automataUnion(automatas) -> FA:
+def automataUnion(automatas: list[FA.FA]) -> FA:
     states = 1
     # Estado inicial é sempre 0
     final_states = set()
