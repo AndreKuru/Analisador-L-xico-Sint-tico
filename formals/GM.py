@@ -1,13 +1,15 @@
+from dataclasses import dataclass
 import sys
 import os
 
 
+@dataclass
 class GM:
-    def __init__(self, noterminals, terminals, initial, productions) -> None:
-        self.noterminals = noterminals
-        self.terminals = terminals
-        self.initial = initial
-        self.productions = productions
+
+    noterminals: set[int]
+    terminals: set[int]
+    initial: str
+    productions: dict[str, set[str]]
 
     def printGM(self):
         print(f"{self.noterminals}")
@@ -81,7 +83,7 @@ def readGM(file):
     nopipe = []
     for i in range(len(file_rows)):
         file_one_row = file_rows[i].split(" -> ")
-        nopipe = (file_one_row[1].split(" | "))
+        nopipe = file_one_row[1].split(" | ")
         for body in nopipe:
             if file_one_row[0] not in productions:
                 productions[file_one_row[0]] = {body}
@@ -113,7 +115,6 @@ def readGM(file):
     terminals = set(fragments)
 
     return initial, productions, noterminals, terminals
-
 
 
 initial, productions, noterminals, terminals = readGM(sys.argv[1])

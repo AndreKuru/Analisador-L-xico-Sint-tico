@@ -72,5 +72,5 @@ a1 = readFA(sys.argv[1])
 # lerER(sys.argv[1])
 #a1.printFA()
 #a1.determinizeFA()
-#a1.printFA()
-a1.minimizeFA();
+a1.printFA()
+#a1.minimizeFA();

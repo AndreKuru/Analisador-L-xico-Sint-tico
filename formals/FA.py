@@ -40,7 +40,8 @@ class FA:
         for transition in self.transitions:
             if transition[0] == current_state and transition[1] == symbol:
                 next_state = transition[2]
-# Se próximo estado é morto retorna o token do estado atual (que deve ser final)
+
+        # Se próximo estado é morto retorna o token do estado atual (que deve ser final)
         if next_state == None:
             for token in self.final_states:
                 if current_state in self.final_states[token]:
@@ -184,7 +185,9 @@ class FA:
     def minimizeFA(self):
         minimized = copy.deepcopy(self)
 
-        #remover estados inalcançaveis
+        minimized = copy.deepcopy(self)
+
+        # remover estados inalcançaveis
         reach = set([minimized.initial])
         new = set([minimized.initial])
         
@@ -208,10 +211,13 @@ class FA:
                 minimized.transitions.remove(minimized.transitions[i])
         minimized.final_states = {i for i in reach if i in minimized.final_states['token_generic']}
 
-        #remover estados morto
+        minimized.final_states = {
+            i for i in reach if i in minimized.final_states["token_generic"]
+        }
+
+        # remover estados morto
         alive = minimized.final_states
         new = minimized.final_states
-
 
         while len(new):
             aux = set()
@@ -231,10 +237,15 @@ class FA:
             else:
                 if minimized.transitions[i][0] not in alive:
                     minimized.transitions.remove(minimized.transitions[i])
-        
-        #classes de equivalencia
-        old_class = [minimized.final_states, set([minimized.transitions[i] for i in range(len(minimized.transitions))]).difference(minimized.final_states)]
-    
+
+        # classes de equivalencia
+        old_class = [
+            minimized.final_states,
+            set(
+                [minimized.transitions[i] for i in range(len(minimized.transitions))]
+            ).difference(minimized.final_states),
+        ]
+
         for i in old_class:
             new_class = []
     
@@ -267,7 +278,7 @@ class FA:
         
         print(new_class)
         print(new_class)
-        print('self')
+        print("self")
         for i in self.transitions:
             print(i)
         print("minimized")
