@@ -145,14 +145,13 @@ class FA:
         # Gera novos estados finais
         new_final_states = dict()
         for token in self.final_states:
-          new_final_states[token] = set()
+            new_final_states[token] = set()
 
         for i in range(len(new_states)):
             for token in self.final_states:
-              for old_final_state in self.final_states[token]:
-                  if old_final_state in new_states[i]:
-                      new_final_states[token].add(i)
-
+                for old_final_state in self.final_states[token]:
+                    if old_final_state in new_states[i]:
+                        new_final_states[token].add(i)
 
         # Atualiza todas propriedades
         self.total_states = len(new_states)
@@ -161,5 +160,5 @@ class FA:
         self.final_states = new_final_states
 
         self.transitions = list()
-        for new_transition in new_transitions :
-          self.transitions.append(tuple(new_transition))
+        for new_transition in new_transitions:
+            self.transitions.append(tuple(new_transition))

@@ -46,15 +46,16 @@ def automataUnion(automatas) -> FA:
 
     for automata in automatas:
         alphabet = alphabet.union(automata.alphabet)
-        aux = [0, "&", automata.initial + states]
+        aux = (0, "&", automata.initial + states)
         transitions.append((aux))
 
-        for final_state in automata.final_states:
-            final_states.add(final_state + states)
+        for token in automata.final_states:
+            for final_state in automata.final_states[token]:
+                final_states[token].add(final_state + states)
 
         for transition in automata.transitions:
             transitions.append(
-                [transition[0] + states, transition[1], transition[2] + states]
+                (transition[0] + states, transition[1], transition[2] + states)
             )
 
         states += automata.states
