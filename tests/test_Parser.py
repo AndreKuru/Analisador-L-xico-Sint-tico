@@ -1,6 +1,26 @@
 from formals.GM import GM
-from formals.Parser import Parser, buildCanonicalItems, generateSLRParser, closure
+from formals.Parser import Parser, buildCanonicalItems, generateSLRParser, closure, goTo
 
+
+def test_goTo_with_canonical_item_0_from_slides_gramar():
+
+    item = [
+        ("E'", '.E'),
+        ('E', '.E+T'),
+        ('E', '.T'),
+        ('T', '.T*F'),
+        ('T', '.F'),
+        ('F', '.(E)'),
+        ('F', '.id')
+    ]
+    symbol = '('
+
+    expected = [
+        ('F', '(.E)')
+        ]
+    
+    goto = goTo(item, symbol)
+    assert goto == expected
 
 def test_closure_with_canonical_items_0_from_slides_gramar():
 

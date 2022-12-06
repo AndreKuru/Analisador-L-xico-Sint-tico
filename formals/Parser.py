@@ -13,7 +13,20 @@ class Parser:
     slr_table_noterminals: list[list[int]]
 
 def goTo(item, symbol):
-    pass
+    new_productions = list()
+    for production in item:
+        new_production = tuple()
+        body = list(production[1])
+        dot_index = body.index('.')
+        symbol_being_read = body[dot_index + 1]
+        if symbol_being_read == symbol:
+            body.remove('.')
+            body.insert(dot_index + 1, '.')
+            new_body = ''.join(body)
+            new_production = (production[0], new_body)
+            new_productions.append(new_production)
+    
+    return new_productions
 
 def closure(item, symbol, productions, noterminals):
 
@@ -60,9 +73,15 @@ def buildCanonicalItems(grammar):
     first_item.append(first_production)
     symbol_being_read = first_body[first_body.index('.') + 1]
     if symbol_being_read in grammar.noterminals:
-        closure(first_item, symbol_being_read, marked_productions, grammar.noterminals)
-    elif symbol_being_read in grammar.terminals:
-        goTo(first_item, symbol_being_read)
+        new_item = closure(first_item, symbol_being_read, marked_productions, grammar.noterminals)
+        canonical_items.append(new_item)
+    go_tos = {}
+    for index in range(len(canonical_items)):
+        go_to = []
+        for production in canonical_items[index]:
+            symbol_being_read = production[1][production[1].index('.') + 1]
+            go_to = goTo(canonical_items[index], symbol_being_read)
+            go_tos[(index, symbol_being_read)] = go_to
 
 def extendGrammar(grammar):
 
