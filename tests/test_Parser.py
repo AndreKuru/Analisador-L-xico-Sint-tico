@@ -1,6 +1,45 @@
 from formals.GM import GM
-from formals.Parser import Parser, buildCanonicalItems, generateSLRParser, closure, goTo
+from formals.Parser import Parser, buildCanonicalItems, generateSLRParser, closure, goTo, indexProductions
 
+def test_indexProductions():
+
+    noterminals = [
+        'E▶️',
+        'E',
+        'T',
+        'F'
+        ]
+    
+    terminals = [
+        'id',
+        '+',
+        '*',
+        '(',
+        ')'
+    ]
+
+    marked_productions = [
+        ('E▶️', '.E'),
+        ('E', '.E+T'),
+        ('E', '.T'),
+        ('T', '.T*F'),
+        ('T', '.F'),
+        ('F', '.(E)'),
+        ('F', '.id')
+    ]
+
+    expected = [
+        (0, ['.', 1]),
+        (1, ['.', 1, 5, 2]),
+        (1, ['.', 2]),
+        (2, ['.', 2, 6, 3]),
+        (2, ['.', 3]),
+        (3, ['.', 7, 1, 8]),
+        (3, ['.',4])
+    ]
+
+    indexed_productions = indexProductions(noterminals, terminals, marked_productions)
+    assert indexed_productions == expected
 
 def test_goTo_with_canonical_item_0_from_slides_gramar():
 
@@ -13,10 +52,10 @@ def test_goTo_with_canonical_item_0_from_slides_gramar():
         ('F', '.(E)'),
         ('F', '.id')
     ]
-    symbol = '('
+    symbol = 'id'
 
     expected = [
-        ('F', '(.E)')
+        ('F', 'id.')
         ]
     
     goto = goTo(item, symbol)
