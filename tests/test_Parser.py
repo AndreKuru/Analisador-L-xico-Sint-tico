@@ -1,8 +1,36 @@
 from formals.GM import GM
-from formals.Parser import Parser, buildCanonicalItems, generateSLRParser
+from formals.Parser import Parser, buildCanonicalItems, generateSLRParser, closure
 
 
-def test_buildCanonicalItems_with_slides_gramar():
+def test_closure_with_canonical_items_0_from_slides_gramar():
+
+    item = [("E'", '.E')]
+    symbol = 'E'
+    productions = [
+        ("E'", '.E'),
+        ('E', '.E+T'),
+        ('E', '.T'),
+        ('T', '.T*F'),
+        ('T', '.F'),
+        ('F', '.(E)'),
+        ('F', '.id')
+    ]
+    noterminals = ['E', 'T', 'F']
+
+    expected = [
+        ("E'", '.E'),
+        ('E', '.E+T'),
+        ('E', '.T'),
+        ('T', '.T*F'),
+        ('T', '.F'),
+        ('F', '.(E)'),
+        ('F', '.id')
+    ]
+
+    canonical_item = closure(item, symbol, productions, noterminals)
+    assert canonical_item == expected
+
+'''def test_buildCanonicalItems_with_slides_gramar():
     noterminals = {"E", "T", "F"}
     terminals = {"id", "+", "*", "(", ")"}
     initial = "E"
@@ -189,3 +217,4 @@ def test_generateSLRParser_with_slides_gramar():
     )
 
     assert parser == expected
+'''

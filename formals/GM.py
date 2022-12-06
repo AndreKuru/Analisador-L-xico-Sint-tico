@@ -117,7 +117,8 @@ def readGM(file):
     return initial, productions, noterminals, terminals
 
 
-initial, productions, noterminals, terminals = readGM(sys.argv[1])
+'''initial, productions, noterminals, terminals = readGM(sys.argv[1])
 gm = GM(noterminals, terminals, initial, productions)
 gm.eliminateLR()
 gm.printGM()
+'''
