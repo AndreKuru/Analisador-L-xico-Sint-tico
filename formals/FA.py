@@ -26,7 +26,8 @@ class FA:
             if t[0] == state and t[1] == symbol:
                 return t
     
-    def runFA(self, entry) -> tuple[str, str, str]:
+    # Roda o automato e retorna (token, lexema, entrada restante)
+    def run(self, entry) -> tuple[str, str, str]:
         self.runState(self.initial, entry, "")
 
     def runState(self, current_state, lexeme, entry) -> tuple[str, str, str]:

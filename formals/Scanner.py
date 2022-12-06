@@ -1,6 +1,9 @@
-import FA
 import sys
 import os
+from dataclasses import dataclass, field
+from RE import RE
+from RE import RE
+from FA import FA
 
 
 def readFA(arquivo):
@@ -20,24 +23,23 @@ def readFA(arquivo):
                 transitions.append((int(transition[0]), transition[1], int(i)))
         else:
             transitions.append((int(transition[0]), transition[1], int(transition[2])))
-    automata = FA.FA(states, alphabet, initial, final_states, transitions)
+    automata = FA(states, alphabet, initial, final_states, transitions)
     # automato.imprimirAF()
     return automata
 
 
-def readER(arquivo):
+def readER(arquivo) -> RE:
     arquivo = open(arquivo, "r")
     arquivo_linhas = arquivo.readlines()
     definitions = list()
-    expressions = list()
     for linha in arquivo_linhas:
-        definitions.append(linha.split(": ")[0])
-        expressions.append(linha.split(": ")[1])
-    print(f"Definições: {definitions}")
-    print(f"Expressões: {expressions}")
+        definition = linha.split(": ")[0]
+        expression = linha.split(": ")[1]
+        definitions.append((definition, expression))
+    return RE(definition)
 
 
-def automataUnion(automatas: list[FA.FA]) -> FA:
+def automataUnion(automatas: list[FA]) -> FA:
     states = 1
     # Estado inicial é sempre 0
     final_states = set()
@@ -60,9 +62,57 @@ def automataUnion(automatas: list[FA.FA]) -> FA:
 
         states += automata.states
 
-    automata = FA.FA(states, alphabet, 0, final_states, transitions)
+    automata = FA(states, alphabet, 0, final_states, transitions)
 
     return automata
+
+
+@dataclass
+class Scanner:
+    token_recognizer: FA = field(init=False)
+    token_table: list[tuple[str, int]] = field(default_factory=list)
+    lexemas_table: list[str] = field(default_factory=list)
+
+    def __post__init__(self, patterns):
+
+        # Gera os regex de patterns
+        read_patterns = list()
+        for pattern in patterns:
+            read_patterns.append(readER(pattern))
+
+        # Gera os automatos das regex
+        automatas = list()
+        for read_pattern in read_patterns:
+            automatas += read_pattern.generateFAs()
+
+        # for automata in automatas:
+        #   automata.minimizeFA()
+
+        # Gera o reconhecedor de tokens a partir dos automatos
+        automata = automataUnion(automatas)
+        self.token_recognizer = automata.determinizeFA()
+
+        # le o source text com os automatos
+
+    def run(self, source_text):
+        entry = source_text
+
+        while len(source_text) >= 0:
+            result = self.token_recognizer.run(entry)
+
+            token = result[0]
+            self.token_table.append((token, len(self.lexemas_table)))
+
+            lexema = result[1]
+            self.lexemas_table.append(lexema)
+
+            entry = result[2]
+
+    def clearTables(self):
+        self.token_table = list()
+        self.lexemas_table = list()
+
+    # TODO def writeTablesToFiles():
 
 
 a1 = readFA(sys.argv[1])
@@ -70,7 +120,7 @@ a1 = readFA(sys.argv[1])
 # a3 = uniaoAutomato([a1, a2])
 # a3.imprimirAF()
 # lerER(sys.argv[1])
-#a1.printFA()
-#a1.determinizeFA()
-a1.minimizeFA();
+# a1.printFA()
+# a1.determinizeFA()
+a1.minimizeFA()
 a1.printFA()
