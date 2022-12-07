@@ -149,13 +149,26 @@ def lookAhead(canonical_item: list()):
     new_canonical_item = list()
     for (head, body) in canonical_item:
         pointer_index = body.index(MARK_POINTER)
+        if pointer_index + 1 >= len(body):
+            return None
         new_body = body.copy()
         new_body.remove(MARK_POINTER)
-        new_body.insert(pointer_index + 1)
+        new_body.insert(pointer_index + 1, MARK_POINTER)
         new_production = (head, new_body)
         new_canonical_item.append(new_production)
 
     return new_canonical_item
+
+def readCanonicalItemEndOfSentence(canonical_item: list(), reference_productions) -> bool:
+    for production in canonical_item:
+        body = production[1]
+        pointer_index = body.index(MARK_POINTER)
+        if pointer_index + 1 == END_OF_SENTENCE:
+            production_hit = production
+            production_hit[1].remove(MARK_POINTER)
+            production_hit[1].insert(0, MARK_POINTER)
+            return reference_productions.index(production_hit)
+    return -1
 
 
 def separate_canonical_items_by_symbol(canonical_items):
@@ -221,6 +234,7 @@ def mergeCanonicalItems(
 
         # Se comparar com todos os itens velhos e ainda não existir adiciona o novo item a lista
         if not already_exists:
+            # Lista de transições index = origem, symbol = transição, destination = último item canonico mesclado
             item_transitions.append((symbol, len(old_canonical_items)))
             old_canonical_items.append(list(new_canonical_items[symbol]))
 
@@ -229,34 +243,36 @@ def mergeCanonicalItems(
 
 def buildCanonicalItems(grammar_reference):
 
-    canonical_item_looked_ahead = grammar_reference.productions[0]
-    canonical_items = [canonical_item_looked_ahead]
+    canonical_item = grammar_reference.productions[0]
+    canonical_items = list()
     item_index = 0
-    items_transitions = list()
+    items_transitions = list() # Goto-table list[tuple[Symbol, item_destination]]
     while item_index < len(new_canonical_items):
 
-        # Adquire o closure
-        new_canonical_item = closure(
-            canonical_item_looked_ahead,
-            grammar_reference.noterminals,
-            grammar_reference.productions,
-        )
-        # Agrupa todos possíveis novos itens canônicos por símbolo de transição
-        new_canonical_items = separate_canonical_items_by_symbol(new_canonical_item)
+        # Se o item canonico for válido
+        if canonical_item != None:
+            # Adquire o closure
+            new_canonical_item = closure(
+                canonical_item,
+                grammar_reference.noterminals,
+                grammar_reference.productions,
+            )
+            # Agrupa todos possíveis novos itens canônicos por símbolo de transição
+            new_canonical_items = separate_canonical_items_by_symbol(new_canonical_item)
 
-        # Atualiza os itens canonicos com os novos
-        canonical_items, item_transitions = mergeCanonicalItems(
-            new_canonical_items, canonical_items
-        )
+            # Atualiza os itens canonicos com os novos
+            canonical_items, item_transitions = mergeCanonicalItems(
+                new_canonical_items, canonical_items
+            )
 
-        # Adiciona as transições do último item canonico
-        items_transitions.append[item_transitions]
+            # Adiciona as transições do último item canonico
+            items_transitions.append[item_transitions]
 
         # Passa para o próximo item canônico não processado
-        item_index = len(items_transitions)  # item_index +=1
+        item_index +=1
 
         # Move o pointeiro
-        canonical_item_looked_ahead = lookAhead(canonical_items[item_index])
+        canonical_item = lookAhead(canonical_items[item_index])
 
     return (canonical_items, items_transitions)
 
@@ -272,6 +288,18 @@ def markShifts(items_transitions, buildSLRTableTerminals):
         buildSLRTableTerminals[canonical_item_origin_index][symbol_index] = shift
     return buildSLRTableTerminals
 
+def markReduces(slr_table_terminals, canonical_items, follows, reference_productions):
+    for canonical_item_index in range(len(canonical_items)):
+        canonical_item = canonical_items[canonical_item_index]
+        production_index = readCanonicalItemEndOfSentence(canonical_item, reference_productions)
+        if production_index != -1:
+            for follow in follows[production_index]:
+
+
+
+
+
+
 
 @dataclass
 class ParserSLR:
@@ -280,8 +308,8 @@ class ParserSLR:
         list[str], list[str], str, list[tuple[int, list[int | str]]]
     ) = field(init=False)
 
-    canonical_items: list[list[tuple[int, list[str | int]]]] = field(init=False)
-    go_to_table: list[tuple[int, int, int]] = field(init=False)
+#    canonical_items: list[list[tuple[int, list[str | int]]]] = field(init=False)
+#    go_to_table: list[tuple[int, int, int]] = field(init=False)
 
     firsts: list[set[int]] = field(init=False)
     firsts_untouched: set[int] = field(init=False)
@@ -424,6 +452,7 @@ class ParserSLR:
             if index not in self.follows_untouched:
                 self.calculateFollow(index, productions, epslon)
 
+    
     def buildSLRTableTerminals(
         self, grammar_reference, canonical_items, items_transitions
     ):
@@ -438,8 +467,8 @@ class ParserSLR:
         self.calculateFirsts()
         self.calculateFollows()
 
-        # # Marcar os reduces
-        # markReduces(SLRTableTerminals)
+        # Marcar os reduces
+        markReduces(slr_table_terminals, canonical_items, self.follows, grammar_reference.productions)
 
         # # Marcar o accept
         # markAccept(SLRTableTerminals)
