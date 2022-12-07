@@ -19,7 +19,7 @@ def goTo(item, symbol):
         new_production = tuple()
         body = list(production[1])
         dot_index = body.index('.')
-        
+
         symbol_being_read = body[dot_index + 1]
         if symbol_being_read == symbol:
             body.remove('.')
@@ -52,49 +52,70 @@ def closure(item, symbol, productions, noterminals):
 
 def indexBodies(symbols: list(), bodies, shift):
 
+    # Seleciona um símbolo de uma lista de símbolos
     for symbol_index in range(len(symbols)):
         symbol = symbols[symbol_index]
 
+        # Seleciona um corpo de produção
         for body in bodies:
                 body_index = bodies.index(body)
 
+                # Itera pelos elementos do corpo
                 for element in body:
 
+                    # Procura o símbolo
                     if symbol in element:
                         element_index = body.index(element)
+
+                        # Salva as duas porções do corpo entre o símbolo a ser substituído
                         saved_slice_begin = body[:element_index]
                         saved_slice_end = body[element_index + 1:]
+
+                        # Quebra o corpo na posição do símbolo
                         splited_element = element.split(symbol)
 
+                        # Substitui o símbolo pelo seu respectivo índice
                         last_position = len(splited_element) - 1
                         for i in range(last_position, 0, -1):
                             splited_element.insert(i, str(symbol_index + shift))
+
+                        # Une as porções salvas com o índice entre elas
                         splited_element = saved_slice_begin + splited_element + saved_slice_end
                         
+                        # Remove espaços em branco gerados ao quebrar o corpo
                         while '' in splited_element:
                             splited_element.remove('')
+
+                        # Atualiza o corpo na lista de corpos
                         bodies[body_index] = splited_element
         
     return bodies
 
 def indexProductions(noterminals: list(), terminals: list(), marked_productions):
     
+    # Separa as produções em cabeça e corpos
     heads = list()
     bodies = list()
+    # Converte os corpos de produção de strings para listas de strings
     for (_, body) in marked_productions:
         bodies.append([body])
 
+    # Seleciona um não terminal
     for noterminal_index in range(len(noterminals)):
         noterminal = noterminals[noterminal_index]
 
+        # Substitui as cabeças pelos seus respectivos índices
         for (head, _) in marked_productions:
             if head == noterminal:
                 heads.append(noterminal_index)
 
+    # Substitui nos corpos das produções, os não terminais pelos seus respectivos índices
     bodies = indexBodies(noterminals, bodies, 0)
 
+    # Substitui nos corpos das produções, os terminais pelos seus respectivos índices
     bodies = indexBodies(terminals, bodies, len(noterminals))
 
+    # Converte os índices dentro das produções de string para inteiro
     for body in bodies:
         body_index = bodies.index(body)
 
@@ -107,6 +128,8 @@ def indexProductions(noterminals: list(), terminals: list(), marked_productions)
 
         bodies[body_index] = body
     
+    '''Junta as cabeças com seus respectivos corpos
+    e converte as produções de listas para tuplas'''
     indexed_productions = list()
     for i in range(len(marked_productions)):
         indexed_productions.append((heads[i], bodies[i]))
@@ -151,8 +174,9 @@ def buildCanonicalItems(grammar):
 
 def extendGrammar(grammar):
 
+    # Acrescenta um novo símbolo inicial
     initial = grammar.initial + "▶️"
-    noterminals = grammar.noterminals
+    noterminals = grammar.noterminals + initial
     terminals = grammar.terminals
     productions = grammar.productions
     productions[initial] = grammar.initial
