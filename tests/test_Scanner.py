@@ -3,6 +3,7 @@ from formals.Scanner import readFA, readER
 from formals.FA import FA
 from formals.RE import RE
 
+
 def test_read_GM():
 
     expected = (
@@ -59,10 +60,61 @@ def test_read_RE():
     exitRE = readER("./tests/er2.txt")
     assert exitRE == expected
 
+
 def test_automataUnion():
     automatas = []
-    automatas.append(FA(4, {"a", "b"}, 0, {"token_generic": {2}}, [(0, "a", 1), (0, "b", 3), (1, "a", 1), (1, "b", 2), (2, "a", 1), (2, "b", 2), (3, "a", 3), (3, "b", 3)]))
-    automatas.append(FA(4, {"a","b"}, 0, {"token_generic": {2}}, [(0, "b", 1), (0, "a", 3), (1, "b", 1), (1, "a", 2), (2, "b", 1), (2, "a", 2), (3, "b", 3), (3, "a", 3)]))
+    automatas.append(
+        FA(
+            4,
+            {"a", "b"},
+            0,
+            {"token_generic": {2}},
+            [
+                (0, "a", 1),
+                (0, "b", 3),
+                (1, "a", 1),
+                (1, "b", 2),
+                (2, "a", 1),
+                (2, "b", 2),
+                (3, "a", 3),
+                (3, "b", 3),
+            ],
+        )
+    )
+    automatas.append(
+        FA(
+            4,
+            {"a", "b"},
+            0,
+            {"token_generic": {2}},
+            [
+                (0, "b", 1),
+                (0, "a", 3),
+                (1, "b", 1),
+                (1, "a", 2),
+                (2, "b", 1),
+                (2, "a", 2),
+                (3, "b", 3),
+                (3, "a", 3),
+            ],
+        )
+    )
 
-     
-    expect = FA(5, {"a", "b"}, 0, {"token_generic": {2, 4}}, [(0, "b", 1), (0, "a", 3), (1, "b", 1), (1, "a", 2), (2, "b", 1), (2, "a", 2), (3, "4", 3), (3, "a", 3), (4, "a", 3), (4, "b", 4)])
+    expect = FA(
+        5,
+        {"a", "b"},
+        0,
+        {"token_generic": {2, 4}},
+        [
+            (0, "b", 1),
+            (0, "a", 3),
+            (1, "b", 1),
+            (1, "a", 2),
+            (2, "b", 1),
+            (2, "a", 2),
+            (3, "4", 3),
+            (3, "a", 3),
+            (4, "a", 3),
+            (4, "b", 4),
+        ],
+    )

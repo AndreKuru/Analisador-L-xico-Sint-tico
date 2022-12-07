@@ -1,7 +1,19 @@
 from formals.GM import GM, FrozenGM
-from formals.Parser import ParserSLR, indexBodies, extendGrammar, indexProductions, MARK_POINTER, END_OF_SENTENCE, closure
+from formals.Parser import (
+    ParserSLR,
+    indexBodies,
+    extendGrammar,
+    indexProductions,
+    MARK_POINTER,
+    END_OF_SENTENCE,
+    closure,
+    lookAhead,
+    readCanonicalItemEndOfSentence,
+)
 
-'''PASSOU NO TESTE'''
+"""PASSOU NO TESTE"""
+
+
 def test_indexBodies_with_slides_gramar():
 
     marked_productions = [
@@ -73,7 +85,8 @@ def test_indexBodies_with_slides_gramar():
 
     assert indexed_productions == expected
 
-'''
+
+"""
 def test_extendGrammar_with_grammar_from_slides():
 
     noterminals = {"E", "T", "F"}
@@ -116,99 +129,185 @@ def test_extendGrammar_with_grammar_from_slides():
     )
     assert frozen_grammar == expected
 
-'''
+"""
+
+
 def test_indexProductions():
 
-    noterminals = [
-        'E▶️',
-        'E',
-        'T',
-        'F'
-        ]
-    
-    terminals = [
-        'id',
-        '+',
-        '*',
-        '(',
-        ')'
-    ]
+    noterminals = ["E▶️", "E", "T", "F"]
+
+    terminals = ["id", "+", "*", "(", ")"]
 
     marked_productions = [
-        ('E▶️', '.E'),
-        ('E', '.E+T'),
-        ('E', '.T'),
-        ('T', '.T*F'),
-        ('T', '.F'),
-        ('F', '.(E)'),
-        ('F', '.id')
+        ("E▶️", ".E"),
+        ("E", ".E+T"),
+        ("E", ".T"),
+        ("T", ".T*F"),
+        ("T", ".F"),
+        ("F", ".(E)"),
+        ("F", ".id"),
     ]
 
     expected = [
-        (0, ['.', 1]),
-        (1, ['.', 1, 5, 2]),
-        (1, ['.', 2]),
-        (2, ['.', 2, 6, 3]),
-        (2, ['.', 3]),
-        (3, ['.', 7, 1, 8]),
-        (3, ['.',4])
+        (0, [".", 1]),
+        (1, [".", 1, 5, 2]),
+        (1, [".", 2]),
+        (2, [".", 2, 6, 3]),
+        (2, [".", 3]),
+        (3, [".", 7, 1, 8]),
+        (3, [".", 4]),
     ]
 
     indexed_productions = indexProductions(noterminals, terminals, marked_productions)
     assert indexed_productions == expected
 
+
 def test_closure_with_canonical_items_0_from_slides_gramar():
 
-    noterminals = ["E▶️",'E', 'T', 'F']
-    terminals = ['+', '*', '(', ')', 'id', '$']
+    noterminals = ["E▶️", "E", "T", "F"]
+    terminals = ["+", "*", "(", ")", "id", "$"]
 
     productions = [
-        ("E▶️", MARK_POINTER + 'E'),
-        ('E', MARK_POINTER + 'E+T'),
-        ('E', MARK_POINTER + 'T'),
-        ('T', MARK_POINTER + 'T*F'),
-        ('T', MARK_POINTER + 'F'),
-        ('F', MARK_POINTER + '(E)'),
-        ('F', MARK_POINTER + 'id')
+        ("E▶️", MARK_POINTER + "E"),
+        ("E", MARK_POINTER + "E+T"),
+        ("E", MARK_POINTER + "T"),
+        ("T", MARK_POINTER + "T*F"),
+        ("T", MARK_POINTER + "F"),
+        ("F", MARK_POINTER + "(E)"),
+        ("F", MARK_POINTER + "id"),
     ]
-    indexed_reference_productions = indexProductions(noterminals, terminals, productions)
+    indexed_reference_productions = indexProductions(
+        noterminals, terminals, productions
+    )
     initial_production = [indexed_reference_productions[0]]
 
     expected = [
-        ("E▶️", MARK_POINTER + 'E'),
-        ('E', MARK_POINTER + 'E+T'),
-        ('E', MARK_POINTER + 'T'),
-        ('T', MARK_POINTER + 'T*F'),
-        ('T', MARK_POINTER + 'F'),
-        ('F', MARK_POINTER + '(E)'),
-        ('F', MARK_POINTER + 'id')
+        ("E▶️", MARK_POINTER + "E"),
+        ("E", MARK_POINTER + "E+T"),
+        ("E", MARK_POINTER + "T"),
+        ("T", MARK_POINTER + "T*F"),
+        ("T", MARK_POINTER + "F"),
+        ("F", MARK_POINTER + "(E)"),
+        ("F", MARK_POINTER + "id"),
     ]
 
     expected = indexProductions(noterminals, terminals, expected)
 
     item6 = [
-        ('E', 'E+'+ MARK_POINTER + 'T'),
+        ("E", "E+" + MARK_POINTER + "T"),
     ]
     indexed_item6 = indexProductions(noterminals, terminals, item6)
 
     expected_item6 = [
-        ('E', 'E+'+ MARK_POINTER + 'T'),
-        ('T', MARK_POINTER + 'T*F'),
-        ('T', MARK_POINTER + 'F'),
-        ('F', MARK_POINTER + '(E)'),
-        ('F', MARK_POINTER + 'id')
+        ("E", "E+" + MARK_POINTER + "T"),
+        ("T", MARK_POINTER + "T*F"),
+        ("T", MARK_POINTER + "F"),
+        ("F", MARK_POINTER + "(E)"),
+        ("F", MARK_POINTER + "id"),
     ]
 
     indexed_expected_item6 = indexProductions(noterminals, terminals, expected_item6)
 
-
-    canonical_item = closure(initial_production, noterminals, indexed_reference_productions)
+    canonical_item = closure(
+        initial_production, noterminals, indexed_reference_productions
+    )
     canonical_item6 = closure(indexed_item6, noterminals, indexed_reference_productions)
 
     assert canonical_item == expected
     assert canonical_item6 == indexed_expected_item6
 
+
+def test_lookAhead_with_slides_item6_to_item9():
+    # Pro indexed ***BEGIN
+    noterminals = ["E▶️", "E", "T", "F"]
+    terminals = ["+", "*", "(", ")", "id", "$"]
+    # Pro indexed ***END
+    canonical_item6 = [("E", "E+" + MARK_POINTER + "T$"), ("T", MARK_POINTER + "T*F$")]
+
+    indexed_canonical_item6 = indexProductions(noterminals, terminals, canonical_item6)
+
+    expected_canonical_item6 = [
+        ("E", "E+T" + MARK_POINTER + "$"),
+        ("T", "T" + MARK_POINTER + "*F$"),
+    ]
+
+    indexed_expected_canonical_item6 = indexProductions(
+        noterminals, terminals, expected_canonical_item6
+    )
+
+    indexed_canonical_item6 = lookAhead(indexed_canonical_item6)
+
+    assert indexed_canonical_item6 == indexed_expected_canonical_item6
+
+
+def test_readCanonicalItemEndOfSentence_with_slides_item6() -> bool:
+    # Pro indexed ***BEGIN
+    noterminals = ["E▶️", "E", "T", "F"]
+    terminals = ["+", "*", "(", ")", "id", "$"]
+
+    reference_productions = [
+        ("E▶️", MARK_POINTER + "E$"),
+        ("E", MARK_POINTER + "E+T$"),
+        ("E", MARK_POINTER + "T$"),
+        ("T", MARK_POINTER + "T*F$"),
+        ("T", MARK_POINTER + "F$"),
+        ("F", MARK_POINTER + "(E)$"),
+        ("F", MARK_POINTER + "id$"),
+    ]
+    reference_productions = indexProductions(
+        noterminals, terminals, reference_productions
+    )
+
+    end_of_sequence_index = len(noterminals) + len(terminals) - 1
+    # Pro indexed ***END
+    canonical_item6 = [("E", "E+" + MARK_POINTER + "T$"), ("T", MARK_POINTER + "T*F$")]
+
+    indexed_canonical_item6 = indexProductions(noterminals, terminals, canonical_item6)
+
+    expected = -1
+
+    result = readCanonicalItemEndOfSentence(
+        indexed_canonical_item6, reference_productions, end_of_sequence_index
+    )
+
+    assert expected == result
+
+
+def test_readCanonicalItemEndOfSentence_with_slides_item5() -> bool:
+    # Pro indexed ***BEGIN
+    noterminals = ["E▶️", "E", "T", "F"]
+    terminals = ["+", "*", "(", ")", "id", "$"]
+
+    reference_productions = [
+        ("E▶️", MARK_POINTER + "E$"),
+        ("E", MARK_POINTER + "E+T$"),
+        ("E", MARK_POINTER + "T$"),
+        ("T", MARK_POINTER + "T*F$"),
+        ("T", MARK_POINTER + "F$"),
+        ("F", MARK_POINTER + "(E)$"),
+        ("F", MARK_POINTER + "id$"),
+    ]
+    reference_productions = indexProductions(
+        noterminals, terminals, reference_productions
+    )
+
+    end_of_sequence_index = len(noterminals) + len(terminals) - 1
+    # Pro indexed ***END
+    canonical_item5 = [("F", "id" + MARK_POINTER + "$")]
+
+    indexed_canonical_item5 = indexProductions(noterminals, terminals, canonical_item5)
+
+    expected = 6
+
+    result = readCanonicalItemEndOfSentence(
+        indexed_canonical_item5, reference_productions, end_of_sequence_index
+    )
+
+    assert expected == result
+
+
 '''
+
 def test_goTo_with_canonical_item_0_from_slides_gramar():
 
     item = [

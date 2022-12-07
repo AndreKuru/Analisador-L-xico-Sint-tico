@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import copy
 import random
 
+
 @dataclass
 class FA:
 
@@ -11,7 +12,6 @@ class FA:
     final_states: dict[str, set[int]]
     # transitions: list[list[int | str]]
     transitions: list[tuple[int, str, int]]
-
 
     # Roda o automato e retorna (token, lexema, entrada restante)
     def run(self, entry) -> tuple[str, str, str]:
@@ -172,7 +172,7 @@ class FA:
         self.mergeClasses()
 
     def discardDead(self):
-        
+
         last = set()
         alives = set()
         for token in self.final_states:
@@ -182,29 +182,27 @@ class FA:
             last = alives.copy()
             for token in self.transitions:
                 transition = set([token[1], token[2]])
-                if token[0] not in alives:  
+                if token[0] not in alives:
                     for _ in self.transitions:
                         if _[2] == token[0]:
-                                alives.add(token[0])   
-        
+                            alives.add(token[0])
+
         if self.initial not in alives:
             print("ERRO")
             return False
-        
+
         dead = []
         dead_state = []
-        
+
         for i in self.transitions:
             if i[0] not in alives:
                 if i[0] not in dead:
                     dead.append(i[0])
-                dead_state.append(i) 
-        
-        for i in dead_state: 
+                dead_state.append(i)
+
+        for i in dead_state:
             self.transitions.remove(i)
         self.total_states -= len(dead)
-        
-
 
     def discardUnreach(self):
 
@@ -219,18 +217,16 @@ class FA:
         unreach = []
         unreach_state = []
 
-        
         for i in self.transitions:
             if i[0] not in reachable:
                 if i[0] not in unreach:
                     unreach.append(i[0])
-                ureach_state.append(i) 
-        for i in unreach_state: 
+                ureach_state.append(i)
+        for i in unreach_state:
             self.transitions.remove(i)
         self.total_states -= len(unreach)
 
     def mergeClasses(self):
-
 
         final = set()
         non_final = set()
@@ -251,7 +247,7 @@ class FA:
                 if state in class_e:
                     return class_e
             return None
-   
+
         def removex(state, classes):
             for i in classes:
                 for state in i.copy():
@@ -276,10 +272,10 @@ class FA:
                     relation = []
 
                     for state in e_class:
-                            for transition in self.transitions:
-                                if transition[0] == state and transition[1] == i :
-                                    target = findx(transition)
-                                    listed = False
+                        for transition in self.transitions:
+                            if transition[0] == state and transition[1] == i:
+                                target = findx(transition)
+                                listed = False
 
                     classes = removex(state, classes)
                     for r in relation:
@@ -296,7 +292,7 @@ class FA:
         statesx = []
         for classx in classes:
             new_s = None
-            
+
             if self.initial in classx:
                 new_s = self.initial
             else:
@@ -304,13 +300,13 @@ class FA:
                     new_s = classx.pop()
                 except KeyError:
                     print("Error")
-            
+
             for transition in self.transitions:
                 if transition[2] in classx:
-                   transition[2] = new_s
+                    transition[2] = new_s
 
             statesx.append(new_s)
-        
+
         new_i = 0
         for transition in self.transitions.copy():
             if transition[0] in statesx:
@@ -321,13 +317,17 @@ class FA:
         for i in self.transitions.copy():
             if i[2] == transition[0]:
                 try:
-                    new_i = i[0], i[1], random.choice(list(self.final_states["token_generic"]))
+                    new_i = (
+                        i[0],
+                        i[1],
+                        random.choice(list(self.final_states["token_generic"])),
+                    )
                 except KeyError:
                     print("ERROR")
-                self.transitions.remove(i) 
-        
+                self.transitions.remove(i)
+
         self.transitions.append(new_i)
-        
+
         seen = []
         self.total_states = 0
         for i in self.transitions.copy():
@@ -338,9 +338,9 @@ class FA:
 
             if type(i) == int:
                 self.transitions.remove(i)
-                
+
         print(statesx)
-        print(self.total_states) 
+        print(self.total_states)
         print(self.alphabet)
         print(self.initial)
         print(self.final_states)

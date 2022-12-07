@@ -130,7 +130,9 @@ def closure(canonical_item, noterminals, reference_productions):
 
         # Busca o símbolo de marcação
         symbol = 0
-        print("canonical_item[canonical_item_index]", canonical_item[canonical_item_index])
+        print(
+            "canonical_item[canonical_item_index]", canonical_item[canonical_item_index]
+        )
         body = canonical_item[canonical_item_index][1]
         while body[symbol] != MARK_POINTER and symbol < len(body):
             symbol += 1
@@ -144,7 +146,7 @@ def closure(canonical_item, noterminals, reference_productions):
         print("read_symbol", read_symbol)
         if read_symbol < len(noterminals) and read_symbol not in read_symbols:
             read_symbols.add(read_symbol)
-            print("read_symbol",read_symbol)
+            print("read_symbol", read_symbol)
 
             # Pega todas as produções do símbolo lido
             for production in reference_productions:
@@ -156,6 +158,8 @@ def closure(canonical_item, noterminals, reference_productions):
     return canonical_item
 
 
+# Move o ponteiro de todos as produções passadas no item canonico um para frente
+# Caso algum ponteiro já esteja lendo o final da sentença retorna nulo
 def lookAhead(canonical_item: list()):
     new_canonical_item = list()
     for (head, body) in canonical_item:
@@ -170,11 +174,16 @@ def lookAhead(canonical_item: list()):
 
     return new_canonical_item
 
-def readCanonicalItemEndOfSentence(canonical_item: list(), reference_productions) -> bool:
+
+# Encontra a produção que lê o final de sentença
+# retorna o índice dela relativo as produções de referência
+def readCanonicalItemEndOfSentence(
+    canonical_item: list(), reference_productions, end_of_sequence_index
+) -> int:
     for production in canonical_item:
         body = production[1]
         pointer_index = body.index(MARK_POINTER)
-        if pointer_index + 1 == END_OF_SENTENCE:
+        if body[pointer_index + 1] == end_of_sequence_index:
             production_hit = production
             production_hit[1].remove(MARK_POINTER)
             production_hit[1].insert(0, MARK_POINTER)
@@ -257,7 +266,7 @@ def buildCanonicalItems(grammar_reference):
     canonical_item = grammar_reference.productions[0]
     canonical_items = list()
     item_index = 0
-    items_transitions = list() # Goto-table list[tuple[Symbol, item_destination]]
+    items_transitions = list()  # Goto-table list[tuple[Symbol, item_destination]]
     while item_index < len(new_canonical_items):
 
         # Se o item canonico for válido
@@ -280,7 +289,7 @@ def buildCanonicalItems(grammar_reference):
             items_transitions.append[item_transitions]
 
         # Passa para o próximo item canônico não processado
-        item_index +=1
+        item_index += 1
 
         # Move o pointeiro
         canonical_item = lookAhead(canonical_items[item_index])
@@ -299,14 +308,23 @@ def markShifts(items_transitions, buildSLRTableTerminals):
         buildSLRTableTerminals[canonical_item_origin_index][symbol_index] = shift
     return buildSLRTableTerminals
 
-def markReduces(slr_table_terminals, canonical_items, follows, reference_productions):
+
+def markReduces(
+    slr_table_terminals,
+    canonical_items,
+    follows,
+    reference_productions,
+    end_of_sequence_index,
+):
 
     # Seleciona um item canônico
     for canonical_item_index in range(len(canonical_items)):
         canonical_item = canonical_items[canonical_item_index]
 
-        # Obtem e salva o número da produção, caso o símbolo a ser lido é o símbolo de final de sentença 
-        production_index = readCanonicalItemEndOfSentence(canonical_item, reference_productions)
+        # Obtem e salva o número da produção, caso o símbolo a ser lido é o símbolo de final de sentença
+        production_index = readCanonicalItemEndOfSentence(
+            canonical_item, reference_productions, end_of_sequence_index
+        )
         if production_index != -1:
 
             # Para cada follow da cabeça da produção
@@ -317,6 +335,7 @@ def markReduces(slr_table_terminals, canonical_items, follows, reference_product
                 slr_table_terminals[canonical_item_index][follow] = reduce
 
     return slr_table_terminals
+
 
 def markAccept(slr_table_terminals, canonical_items, productions):
     # Seleciona a primeira produção
@@ -332,18 +351,20 @@ def markAccept(slr_table_terminals, canonical_items, productions):
 
     return slr_table_terminals
 
+
 def markGoTos(slr_table_noterminals, items_transitions):
     # Para cada item, verifica na tabela de GOTO
     for item_index in range(len(items_transitions)):
 
         # Para cada não terminal
         for noterminal in range(len(slr_table_noterminals)):
-            
+
             # Marca a ação desviar no item  pelo não terminal
             deviation = items_transitions[item_index][1]
             slr_table_noterminals[item_index][noterminal] = deviation
 
     return slr_table_noterminals
+
 
 @dataclass
 class ParserSLR:
@@ -352,8 +373,8 @@ class ParserSLR:
         list[str], list[str], str, list[tuple[int, list[int | str]]]
     ) = field(init=False)
 
-#    canonical_items: list[list[tuple[int, list[str | int]]]] = field(init=False)
-#    go_to_table: list[tuple[int, int, int]] = field(init=False)
+    #    canonical_items: list[list[tuple[int, list[str | int]]]] = field(init=False)
+    #    go_to_table: list[tuple[int, int, int]] = field(init=False)
 
     firsts: list[set[int]] = field(init=False)
     firsts_untouched: set[int] = field(init=False)
@@ -496,7 +517,6 @@ class ParserSLR:
             if index not in self.follows_untouched:
                 self.calculateFollow(index, productions, epslon)
 
-    
     def buildSLRTableTerminals(
         self, grammar_reference, canonical_items, items_transitions
     ):
@@ -511,11 +531,23 @@ class ParserSLR:
         self.calculateFirsts()
         self.calculateFollows()
 
+        end_of_sequence_index = (
+            len(grammar_reference.noterminals) + len(grammar_reference.terminals) - 1
+        )
+
         # Marcar os reduces
-        slr_table_terminals = markReduces(slr_table_terminals, canonical_items, self.follows, grammar_reference.productions)
+        slr_table_terminals = markReduces(
+            slr_table_terminals,
+            canonical_items,
+            self.follows,
+            grammar_reference.productions,
+            end_of_sequence_index,
+        )
 
         # Marcar o accept
-        slr_table_terminals = markAccept(slr_table_terminals, canonical_items, grammar_reference.productions)
+        slr_table_terminals = markAccept(
+            slr_table_terminals, canonical_items, grammar_reference.productions
+        )
 
     def buildSLRTableNoTerminals(
         self, grammar_reference, canonical_items, items_transitions

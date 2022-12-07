@@ -1,11 +1,15 @@
 from formals.FA import FA
 from formals.RE import RE
 
+
 def test_generateFAs():
 
-    re = RE([('digit', '[0-9]'), ('letter', '[a-zA-Z]'), ('id', 'letter(letter | digit)*')])
+    re = RE(
+        [("digit", "[0-9]"), ("letter", "[a-zA-Z]"), ("id", "letter(letter | digit)*")]
+    )
 
-    expected = FA(4,
+    expected = FA(
+        4,
         {"a", "b", "&"},
         0,
         {"token_generic": {3}},
