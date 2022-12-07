@@ -230,9 +230,47 @@ class ParserSLR:
 
         # self.canonical_items = return
 
+    def initializeSLRTableTerminals(self):
+        table = list()
+        for _ in range(len(self.canonical_items)):
+          row = list()
+          for _ in range(len(self.grammar_reference.terminals)):
+            row.append(("", None))
+          table.append(row)
+
+        self.slr_table_terminals = table
+
+    def initializeSLRTableNoterminals(self):
+        table = list()
+        for _ in range(len(self.canonical_items)):
+          row = list()
+          for _ in range(len(self.grammar_reference.noterminals)):
+            row.append(None)
+          table.append(row)
+
+        self.slr_table_noterminals = table
+
+
+        
+    def markShifts(self):
+
+      for go_to in self.go_to_table:
+        canonical_item_origin_index = go_to[0]
+        terminal_index = go_to[1]
+        canonical_item_destination_index = go_to[2]
+        shift = ("s", canonical_item_destination_index)
+        self.buildSLRTableTerminals[canonical_item_origin_index][terminal_index] = shift
+
+
     def buildSLRTableTerminals(self):
+        # Initialize a tabela de terminais com o formato e tamanho certo
+        self.initializeSLRTableTerminals
+
         # Marcar os shifts
-        markShifts(SLRTableTerminals)
+        self.markShifts()
+
+        # Calcular os follows
+        follows = calculateFollows(extended_gm)
 
         # Marcar os reduces
         markReduces(SLRTableTerminals)
@@ -240,10 +278,11 @@ class ParserSLR:
         # Marcar o accept
         markAccept(SLRTableTerminals)
 
-        # Calcular os follows
-        follows = calculateFollows(extended_gm)
 
     def buildSLRTableNonTerminals(self):
+        # Initialize a tabela de não terminais com o formato e tamanho certo
+        self.initializeSLRTableNoterminals
+
         # Marcar os desvios
         markGoTos(SLRTableNonTerminals)
 
