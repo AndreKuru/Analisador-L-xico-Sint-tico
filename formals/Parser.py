@@ -198,9 +198,38 @@ class ParserSLR:
             noterminals, terminals, new_initial_noterminal, indexed_productions
         )
 
+    def closure(initial_production, total_noterminals, productions):
+        # Inicialização
+        canonical_item = [initial_production]
+        canonical_item_index = 0
+        read_symbols = set()
+
+        while canonical_item_index < canonical_item:
+            
+            # Busca o símbolo de marcação
+            symbol = 0
+            while canonical_item[canonical_item_index][1][symbol] != MARK_POINTER:
+                symbol += 1
+
+            # Verifica se o símbolo logo depois do de marcação é um não terminal
+            # e está sendo lido pela primeira
+            read_symbol = initial_production[1][symbol + 1]
+            if (read_symbol < len(total_noterminals) and
+            read_symbol not in read_symbols):
+                read_symbols.add(read_symbol)
+        
+            # Pega todas as produções do símbolo lido
+            for production in productions:
+                if read_symbol == production[0]:
+                    canonical_item.append(production)
+
+
+
     def buildCanonicalItems(self):
 
-        grammar = self.grammar_reference
+        canonical_item_initial = self.grammar_reference.productions[0]
+        closure(canonical_item_initial, self.grammar_reference.noterminals, self.grammar_reference.productions)
+        goto(canonical_item_initial)
 
         canonical_items = list()
         first_body = marked_productions[marked_productions.index(grammar.initial)][1]
@@ -383,8 +412,9 @@ class ParserSLR:
         # Marcar os shifts
         self.markShifts()
 
-        # Calcular os follows
-        follows = calculateFollows()
+        self.calculateFirsts()
+        self.calculateFollows()
+
 
         # Marcar os reduces
         markReduces(SLRTableTerminals)
