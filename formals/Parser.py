@@ -321,6 +321,19 @@ def markAccept(slr_table_terminals, canonical_items, productions):
 
     return slr_table_terminals
 
+def markGoTos(slr_table_noterminals, items_transitions):
+    # Para cada item, verifica na tabela de GOTO
+    for item_index in range(len(items_transitions)):
+
+        # Para cada não terminal
+        for noterminal in range(len(slr_table_noterminals)):
+            
+            # Marca a ação desviar no item  pelo não terminal
+            deviation = items_transitions[item_index][1]
+            slr_table_noterminals[item_index][noterminal] = deviation
+
+    return slr_table_noterminals
+
 @dataclass
 class ParserSLR:
 
@@ -501,8 +514,8 @@ class ParserSLR:
             len(canonical_items), len(grammar_reference.noterminals), None
         )
 
-        # # Marcar os desvios
-        # markGoTos(SLRTableNonTerminals)
+        # Marcar os desvios
+        slr_table_noterminals = markGoTos(slr_table_noterminals, items_transitions)
 
     def generateSLRParser(self, grammar):
 
