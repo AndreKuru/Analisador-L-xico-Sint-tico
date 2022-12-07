@@ -1,34 +1,8 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from formals.GM import GM, FrozenGM
 import sys
 import os
 
-@dataclass
-class Parser:
-
-    terminals: list[str]
-    noterminals: list[str]
-    canonical_items: list[list[tuple[str, str]]]
-    slr_table_terminals: list[list[tuple[str, int]]]
-    slr_table_noterminals: list[list[int]]
-
-def goTo(item, symbol):
-
-    new_productions = list()
-    for production in item:
-        new_production = tuple()
-        body = list(production[1])
-        dot_index = body.index('.')
-
-        symbol_being_read = body[dot_index + 1]
-        if symbol_being_read == symbol:
-            body.remove('.')
-            body.insert(dot_index + 1, '.')
-            new_body = ''.join(body)
-            new_production = (production[0], new_body)
-            new_productions.append(new_production)
-    
-    return new_productions
 
 def closure(item, symbol, productions, noterminals):
 
@@ -40,15 +14,18 @@ def closure(item, symbol, productions, noterminals):
         for production in productions:
             if production[0] == heads_to_be_inserted[i]:
                 item.append(production)
-                symbol_being_read = production[1][production[1].index('.') + 1]
+                symbol_being_read = production[1][production[1].index(".") + 1]
 
-                if (symbol_being_read not in heads_to_be_inserted and 
-                    symbol_being_read in noterminals):
+                if (
+                    symbol_being_read not in heads_to_be_inserted
+                    and symbol_being_read in noterminals
+                ):
                     heads_to_be_inserted.append(symbol_being_read)
 
         i += 1
-    
+
     return item
+
 
 def indexBodies(symbols: list(), bodies, shift):
 
@@ -58,41 +35,44 @@ def indexBodies(symbols: list(), bodies, shift):
 
         # Seleciona um corpo de produção
         for body in bodies:
-                body_index = bodies.index(body)
+            body_index = bodies.index(body)
 
-                # Itera pelos elementos do corpo
-                for element in body:
+            # Itera pelos elementos do corpo
+            for element in body:
 
-                    # Procura o símbolo
-                    if symbol in element:
-                        element_index = body.index(element)
+                # Procura o símbolo
+                if symbol in element:
+                    element_index = body.index(element)
 
-                        # Salva as duas porções do corpo entre o símbolo a ser substituído
-                        saved_slice_begin = body[:element_index]
-                        saved_slice_end = body[element_index + 1:]
+                    # Salva as duas porções do corpo entre o símbolo a ser substituído
+                    saved_slice_begin = body[:element_index]
+                    saved_slice_end = body[element_index + 1 :]
 
-                        # Quebra o corpo na posição do símbolo
-                        splited_element = element.split(symbol)
+                    # Quebra o corpo na posição do símbolo
+                    splited_element = element.split(symbol)
 
-                        # Substitui o símbolo pelo seu respectivo índice
-                        last_position = len(splited_element) - 1
-                        for i in range(last_position, 0, -1):
-                            splited_element.insert(i, str(symbol_index + shift))
+                    # Substitui o símbolo pelo seu respectivo índice
+                    last_position = len(splited_element) - 1
+                    for i in range(last_position, 0, -1):
+                        splited_element.insert(i, str(symbol_index + shift))
 
-                        # Une as porções salvas com o índice entre elas
-                        splited_element = saved_slice_begin + splited_element + saved_slice_end
-                        
-                        # Remove espaços em branco gerados ao quebrar o corpo
-                        while '' in splited_element:
-                            splited_element.remove('')
+                    # Une as porções salvas com o índice entre elas
+                    splited_element = (
+                        saved_slice_begin + splited_element + saved_slice_end
+                    )
 
-                        # Atualiza o corpo na lista de corpos
-                        bodies[body_index] = splited_element
-        
+                    # Remove espaços em branco gerados ao quebrar o corpo
+                    while "" in splited_element:
+                        splited_element.remove("")
+
+                    # Atualiza o corpo na lista de corpos
+                    bodies[body_index] = splited_element
+
     return bodies
 
+
 def indexProductions(noterminals: list(), terminals: list(), marked_productions):
-    
+
     # Separa as produções em cabeça e corpos
     heads = list()
     bodies = list()
@@ -127,14 +107,15 @@ def indexProductions(noterminals: list(), terminals: list(), marked_productions)
                 body[element_index] = element
 
         bodies[body_index] = body
-    
-    '''Junta as cabeças com seus respectivos corpos
-    e converte as produções de listas para tuplas'''
+
+    """Junta as cabeças com seus respectivos corpos
+    e converte as produções de listas para tuplas"""
     indexed_productions = list()
     for i in range(len(marked_productions)):
         indexed_productions.append((heads[i], bodies[i]))
-        
-    return indexed_productions     
+
+    return indexed_productions
+
 
 def markProductions(grammar):
 
@@ -143,34 +124,12 @@ def markProductions(grammar):
     for head, body in grammar.productions.items():
         unmarked_productions = list(body)
         for production in unmarked_productions:
-            if '.' not in production:
-                marked_production = '.' + production
+            if "." not in production:
+                marked_production = "." + production
                 marked_productions.append(tuple(head, marked_production))
-    
+
     return marked_productions
 
-def buildCanonicalItems(grammar):
-
-    # Marca produções com um ponto
-    marked_productions = markProductions(grammar)
-    indexed_productions = indexProductions(terminals, noterminals, marked_productions)
-
-    canonical_items = []
-    first_item = []
-    first_body = marked_productions[marked_productions.index(grammar.initial)][1]
-    first_production = (grammar.initial, first_body)
-    first_item.append(first_production)
-    symbol_being_read = first_body[first_body.index('.') + 1]
-    if symbol_being_read in grammar.noterminals:
-        new_item = closure(first_item, symbol_being_read, marked_productions, grammar.noterminals)
-        canonical_items.append(new_item)
-    go_tos = {}
-    for index in range(len(canonical_items)):
-        go_to = []
-        for production in canonical_items[index]:
-            symbol_being_read = production[1][production[1].index('.') + 1]
-            go_to = goTo(canonical_items[index], symbol_being_read)
-            go_tos[(index, symbol_being_read)] = go_to
 
 def newInitialProduction(grammar):
 
@@ -179,72 +138,125 @@ def newInitialProduction(grammar):
 
     return (initial, grammar.initial)
 
-def extendGrammar(grammar):
 
-    # Cria nova produção com o novo símbolo inicial
-    new_initial_production = newInitialProduction(grammar)
-    new_initial_noterminal = new_initial_production[0]
+@dataclass
+class ParserSLR:
 
-    # Acrescenta-o na lista de não terminais
-    noterminals = [new_initial_noterminal] + list(grammar.noterminals)
-    terminals = list(grammar.terminals)
+    grammar_reference: FrozenGM() = field(init=False)
 
-    # Acrescenta a nova produção às produções
-    productions = list()
-    productions.append(new_initial_production)
+    canonical_items: list[list[tuple[int, list[str | int]]]] = field(init=False)
+    go_to_table: list[tuple[int, str, int]] = field(init=False)
 
-    # Converte cada produção de itens de dicionário para tuplas
-    for head in grammar.productions:
-        for body in grammar.productions[head]:
-            productions.append((head, body))
+    slr_table_terminals: list[list[tuple[str, int]]] = field(init=False)
+    slr_table_noterminals: list[list[int]] = field(init=False)
 
-    # Cria uma gramática congelada
-    frozen_grammar = FrozenGM(noterminals, terminals, new_initial_noterminal, productions)
+    def __post__init__(self, grammar):
+        self.generateSLRParser(grammar)
 
-    return frozen_grammar
+    def goTo(self, item, symbol):
 
-def generateSLRParser(grammar):
+        new_productions = list()
+        for production in item:
+            new_production = tuple()
+            body = list(production[1])
+            dot_index = body.index(".")
 
-    # Estende a gramática e a congela
-    extended_grammar = extendGrammar(grammar)
+            symbol_being_read = body[dot_index + 1]
+            if symbol_being_read == symbol:
+                body.remove(".")
+                body.insert(dot_index + 1, ".")
+                new_body = "".join(body)
+                new_production = (production[0], new_body)
+                new_productions.append(new_production)
 
-    # Construir itens canônicos (automato)
-    canonical_items = buildCanonicalItems(extended_gm)
+        return new_productions
 
-    # Contruir tabela SLR
-    SLRTableTerminals = buildSLRTableTerminals(canonical_items, extended_gm)
-    SLRTableNonTerminals = buildSLRTableNonTerminals(canonical_items, extended_gm)
-    
-    # Marcar os shifts
-    markShifts(SLRTableTerminals)
+    def extendGrammar(self, grammar):
 
-    # Marcar os reduces
-    markReduces(SLRTableTerminals)
+        # Cria nova produção com o novo símbolo inicial
+        new_initial_production = newInitialProduction(grammar)
+        new_initial_noterminal = new_initial_production[0]
 
-    # Marcar o accept
-    markAccept(SLRTableTerminals)
+        # Acrescenta-o na lista de não terminais
+        noterminals = [new_initial_noterminal] + list(grammar.noterminals)
+        terminals = list(grammar.terminals)
 
-    # Calcular os follows
-    follows = calculateFollows(extended_gm)
+        # Acrescenta a nova produção às produções
+        productions = list()
+        productions.append(new_initial_production)
 
-    # Marcar os desvios
-    markGoTos(SLRTableNonTerminals)
+        # Converte cada produção de itens de dicionário para tuplas
+        for head in grammar.productions:
+            for body in grammar.productions[head]:
+                productions.append((head, body))
 
-    # Demais entradas na tabela são erros
+        # Cria uma gramática congelada
+        self.grammar_reference = FrozenGM(
+            noterminals, terminals, new_initial_noterminal, productions
+        )
 
-    # Estado inicial é o que contém a produção pelo símbolo inicial da gramática estendida
+    def buildCanonicalItems(self):
 
-closure(
-    item = [("E'", '.E')],
-    symbol = 'E',
-    productions = [
-        ("E'", '.E'),
-        ('E', '.E+T'),
-        ('E', '.T'),
-        ('T', '.T*F'),
-        ('T', '.F'),
-        ('F', '.(E)'),
-        ('F', '.id')
-    ],
-    noterminals = ['E', 'T', 'F']
-)
+        grammar = self.grammar_reference
+
+        # Marca produções com um ponto
+        marked_productions = markProductions(grammar)
+        indexed_productions = indexProductions(
+            grammar.terminals, grammar.noterminals, marked_productions
+        )
+
+        canonical_items = list()
+        first_body = marked_productions[marked_productions.index(grammar.initial)][1]
+        first_production = (grammar.initial, first_body)
+
+        first_item = [first_production]
+        symbol_being_read = first_body[first_body.index(".") + 1]
+        if symbol_being_read in grammar.noterminals:
+            new_item = closure(
+                first_item, symbol_being_read, marked_productions, grammar.noterminals
+            )
+            canonical_items.append(new_item)
+        go_tos = dict()
+        for index in range(len(canonical_items)):
+            go_to = []
+            for production in canonical_items[index]:
+                symbol_being_read = production[1][production[1].index(".") + 1]
+                go_to = goTo(canonical_items[index], symbol_being_read)
+                go_tos[(index, symbol_being_read)] = go_to
+
+        # final
+
+        # self.canonical_items = return
+
+    def buildSLRTableTerminals(self):
+        # Marcar os shifts
+        markShifts(SLRTableTerminals)
+
+        # Marcar os reduces
+        markReduces(SLRTableTerminals)
+
+        # Marcar o accept
+        markAccept(SLRTableTerminals)
+
+        # Calcular os follows
+        follows = calculateFollows(extended_gm)
+
+    def buildSLRTableNonTerminals(self):
+        # Marcar os desvios
+        markGoTos(SLRTableNonTerminals)
+
+    def generateSLRParser(self, grammar):
+
+        # Estende a gramática e a congela
+        self.extendGrammar(grammar)
+
+        # Construir itens canônicos (automato)
+        self.buildCanonicalItems()
+
+        # Contruir tabela SLR
+        self.buildSLRTableTerminals()
+        self.buildSLRTableNonTerminals()
+
+        # Demais entradas na tabela são erros
+
+        # Estado inicial é o que contém a produção pelo símbolo inicial da gramática estendida
