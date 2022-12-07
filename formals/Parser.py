@@ -289,15 +289,20 @@ def markShifts(items_transitions, buildSLRTableTerminals):
     return buildSLRTableTerminals
 
 def markReduces(slr_table_terminals, canonical_items, follows, reference_productions):
+
+    # Seleciona um item canônico
     for canonical_item_index in range(len(canonical_items)):
         canonical_item = canonical_items[canonical_item_index]
+
+        # Obtem e salva o número da produção, caso o símbolo a ser lido é o símbolo de final de sentença 
         production_index = readCanonicalItemEndOfSentence(canonical_item, reference_productions)
         if production_index != -1:
-            for follow in follows[production_index]:
-
-
-
-
+            # Para cada follow da cabeça da produção
+            for follow in follows[reference_productions[production_index][0]]:
+                reduce = ("r", production_index)
+                # Adiciona reduce número da produção
+                slr_table_terminals[canonical_item_index][follow] = reduce
+    return slr_table_terminals
 
 
 
