@@ -125,7 +125,7 @@ def markProductions(grammar):
         unmarked_productions = list(body)
         for production in unmarked_productions:
             if "." not in production:
-                marked_production = "." + production
+                marked_production = "." + production + '$'
                 marked_productions.append(tuple(head, marked_production))
 
     return marked_productions
@@ -179,7 +179,7 @@ class ParserSLR:
 
         # Acrescenta-o na lista de não terminais
         noterminals = [new_initial_noterminal] + list(grammar.noterminals)
-        terminals = list(grammar.terminals)
+        terminals = list(grammar.terminals) + ["$"]
 
         # Acrescenta a nova produção às produções
         productions = list()
