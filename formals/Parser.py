@@ -117,16 +117,14 @@ def indexProductions(noterminals: list(), terminals: list(), marked_productions)
     return indexed_productions
 
 
-def markProductions(grammar):
+def markProductions(productions):
 
-    # Marca as produções com um ponto
+    # Marca os corpos das produções com um ponto e o símbolo de final de sentença
     marked_productions = list()
-    for head, body in grammar.productions.items():
-        unmarked_productions = list(body)
-        for production in unmarked_productions:
-            if "." not in production:
-                marked_production = "." + production + '$'
-                marked_productions.append(tuple(head, marked_production))
+    for (head, body) in productions:
+            if "." not in body:
+                marked_production = "." + body + '$'
+                marked_productions.append((head, marked_production))
 
     return marked_productions
 
@@ -142,10 +140,12 @@ def newInitialProduction(grammar):
 @dataclass
 class ParserSLR:
 
-    grammar_reference: FrozenGM() = field(init=False)
+    grammar_reference: FrozenGM(
+        list[str], list[str], str, list[tuple[str, str]]
+        ) = field(init=False)
 
     canonical_items: list[list[tuple[int, list[str | int]]]] = field(init=False)
-    go_to_table: list[tuple[int, str, int]] = field(init=False)
+    go_to_table: list[tuple[int, int, int]] = field(init=False)
 
     slr_table_terminals: list[list[tuple[str, int]]] = field(init=False)
     slr_table_noterminals: list[list[int]] = field(init=False)
@@ -199,8 +199,8 @@ class ParserSLR:
 
         grammar = self.grammar_reference
 
-        # Marca produções com um ponto
-        marked_productions = markProductions(grammar)
+        # Marca produções com um ponto e com o símbolo de final de sentença
+        marked_productions = markProductions(grammar.productions)
         indexed_productions = indexProductions(
             grammar.terminals, grammar.noterminals, marked_productions
         )

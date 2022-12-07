@@ -1,6 +1,32 @@
 from formals.GM import GM, FrozenGM
-from formals.Parser import Parser, buildCanonicalItems, generateSLRParser, closure, goTo, indexProductions, extendGrammar
+from formals.Parser import ParserSLR, closure, indexProductions, markProductions
 
+def test_markProductions_with_grammar_from_slides():
+
+    productions = [
+        ('E▶️', 'E'),
+        ('E', 'E+T'),
+        ('E', 'T'),
+        ('T', 'T*F'),
+        ('T', 'F'),
+        ('F', '(E)'),
+        ('F', 'id')
+    ]
+
+    expected = [
+        ('E▶️', '.E$'),
+        ('E', '.E+T$'),
+        ('E', '.T$'),
+        ('T', '.T*F$'),
+        ('T', '.F$'),
+        ('F', '.(E)$'),
+        ('F', '.id$')
+    ]
+
+    marked_productions = markProductions(productions)
+    assert marked_productions == expected
+
+'''
 def test_extendGrammar_with_grammar_from_slides():
 
     noterminals = {"E", "T", "F"}
@@ -111,7 +137,7 @@ def test_closure_with_canonical_items_0_from_slides_gramar():
     canonical_item = closure(item, symbol, productions, noterminals)
     assert canonical_item == expected
 
-'''def test_buildCanonicalItems_with_slides_gramar():
+def test_buildCanonicalItems_with_slides_gramar():
     noterminals = {"E", "T", "F"}
     terminals = {"id", "+", "*", "(", ")"}
     initial = "E"
