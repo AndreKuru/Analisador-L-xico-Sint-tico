@@ -132,6 +132,7 @@ class ParserSLR:
     follows: list[set[int]] = field(init=False)
     follows_untouched: set[int] = field(init=False)
     follows_in_use: set[int] = field(init=False)
+    follows_shared_from: list[int] = field(init=False)
 
     slr_table_terminals: list[list[tuple[str, int]]] = field(init=False)
     slr_table_noterminals: list[list[int]] = field(init=False)
@@ -316,49 +317,52 @@ class ParserSLR:
             if index not in self.firsts_untouched:
                 self.calculateFirst(index, productions, epslon)
 
-    def calculateFollow(self, noterminal, productions, epslon):
-        if noterminal in self.follows_untouched:
-            self.follows_untouched.remove(noterminal)
-        
-        if noterminal in self.follows_in_use:
+    def updateFollow(self, follows_index: int, follows_content: set, follows_opened: list()):
+        if follows_index in follows_opened:
             print("Error")
-        self.follows_in_use.add(noterminal)
+        follows_opened.append(follows_opened)
 
+        self.follows[follows_index] = self.follows[follows_index].union(follows_content)
+
+        for shared in self.follows_shared_from[follows_index]:
+            self.updateFollow(shared, follows_content)
+
+
+    def calculateFollow(self, noterminal, productions, epslon):
         # Vasculha todas as produções do não terminal selecionado 
         for production in productions[noterminal]:
             
             # Vasculha cada símbolo até um terminal ou não terminal não anulável
             # ignorando o ponto de marcação
-            # começando do final
-            index = len(production) - 1
-            while index > 1:
+            # começando do último símbolo antes do símbolo de final de sentença
+            index = len(production) - 2
+            # Repete até chegar no segundo símbolo, pois o primeiro é o ponto de marcação
+            while index > 0:
                 symbol = production[index]
-                if epslon in self.firsts[symbol]:
-                    nullable = True
-                
                 previous_symbol = productions[index - 1]
-                if not nullable:
-                    self.follows[previous_symbol] = self.follows[previous_symbol].union(self.firsts[symbol])
-                else:
-                    if productions[previous_symbol] < len(self.grammar_reference.noterminals):
-                        self.calculateFollow(previous_symbol, productions, epslon)
-                        self.follows[previous_symbol] = self.follows[previous_symbol].union(self.follows[noterminal])
-                
+
+                # Checa se o elemento atual tem firsts não anulável
+                firsts_from_symbol_not_nullable = self.firsts[symbol] - {epslon}
+                if (firsts_from_symbol_not_nullable > 0):
+                    self.updateFollow(previous_symbol, self.firsts[symbol], list())
+
+                # Checa se o elemento atual é noterminals
+                if symbol < len(self.grammar_reference.noterminals):
+                    self.updateFollow(symbol, self.follows[noterminal], list())
+                    self.follows[symbol] =  self.follows[symbol].union(self.follows[noterminal])
+
+                # Símbolo consegue ser anulável
+                if epslon in self.firsts[symbol]:
                     index -= 1
-        
-        self.follows_in_use.remove(noterminal)
 
     def calculateFollows(self):
 
         # Inicializa os follows
         self.follows = list()
-        self.follows_untouched = set()
-        self.follows_in_use = set()
         productions = list()
         for index in range(len(self.grammar_reference.noterminals)):
             self.follows.append(set())
             productions.append(list())
-            self.follows_untouched.add(index)
 
         for (head, body) in self.grammar_reference.productions:
             productions[head].append(body)
