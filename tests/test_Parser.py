@@ -1,5 +1,27 @@
-from formals.GM import GM
-from formals.Parser import Parser, buildCanonicalItems, generateSLRParser, closure, goTo, indexProductions
+from formals.GM import GM, FrozenGM
+from formals.Parser import Parser, buildCanonicalItems, generateSLRParser, closure, goTo, indexProductions, extendGrammar
+
+def test_extendGrammar_with_grammar_from_slides():
+
+    noterminals = {"E", "T", "F"}
+    terminals = {"id", "+", "*", "(", ")"}
+    initial = "E"
+    productions = {"E": {"E+T", "T"}, "T": {"T*F", "F"}, "F": {"(E)", "id"}}
+
+    gm = GM(noterminals, terminals, initial, productions)
+    
+    frozen_noterminals = ['E▶️'] + list({'E', 'T', 'F'})
+    frozen_terminals = list({'id', '+', '*', '(', ')'})
+    frozen_initial = 'E▶️'
+    frozen_productions = [(frozen_initial, initial)]
+    for head in productions:
+        for body in productions[head]:
+            frozen_productions.append((head, body))
+
+    expected = FrozenGM(frozen_noterminals, frozen_terminals, frozen_initial, frozen_productions)
+
+    frozen_grammar = extendGrammar(gm)
+    assert frozen_grammar == expected
 
 def test_indexProductions():
 

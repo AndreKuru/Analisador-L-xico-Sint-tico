@@ -2,12 +2,19 @@ from dataclasses import dataclass
 import sys
 import os
 
+@dataclass
+class FrozenGM:
+
+    noterminals: list[str]
+    terminals: list[str]
+    initial: str
+    productions: list[tuple[str, str]]
 
 @dataclass
 class GM:
 
-    noterminals: set[int]
-    terminals: set[int]
+    noterminals: set[str]
+    terminals: set[str]
     initial: str
     productions: dict[str, set[str]]
 

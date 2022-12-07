@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from formals.GM import GM
+from formals.GM import GM, FrozenGM
 import sys
 import os
 
@@ -172,23 +172,41 @@ def buildCanonicalItems(grammar):
             go_to = goTo(canonical_items[index], symbol_being_read)
             go_tos[(index, symbol_being_read)] = go_to
 
-def extendGrammar(grammar):
+def newInitialProduction(grammar):
 
     # Acrescenta um novo símbolo inicial
     initial = grammar.initial + "▶️"
-    noterminals = grammar.noterminals + initial
-    terminals = grammar.terminals
-    productions = grammar.productions
-    productions[initial] = grammar.initial
 
-    extended_gm = GM(noterminals, terminals, initial, productions)
+    return (initial, grammar.initial)
 
-    return extended_gm
+def extendGrammar(grammar):
+
+    # Cria nova produção com o novo símbolo inicial
+    new_initial_production = newInitialProduction(grammar)
+    new_initial_noterminal = new_initial_production[0]
+
+    # Acrescenta-o na lista de não terminais
+    noterminals = [new_initial_noterminal] + list(grammar.noterminals)
+    terminals = list(grammar.terminals)
+
+    # Acrescenta a nova produção às produções
+    productions = list()
+    productions.append(new_initial_production)
+
+    # Converte cada produção de itens de dicionário para tuplas
+    for head in grammar.productions:
+        for body in grammar.productions[head]:
+            productions.append((head, body))
+
+    # Cria uma gramática congelada
+    frozen_grammar = FrozenGM(noterminals, terminals, new_initial_noterminal, productions)
+
+    return frozen_grammar
 
 def generateSLRParser(grammar):
 
-    # Estender gramática
-    extended_gm = extendGrammar(grammar)
+    # Estende a gramática e a congela
+    extended_grammar = extendGrammar(grammar)
 
     # Construir itens canônicos (automato)
     canonical_items = buildCanonicalItems(extended_gm)
