@@ -73,6 +73,7 @@ def test_indexBodies_with_slides_gramar():
 
     assert indexed_productions == expected
 
+'''
 def test_extendGrammar_with_grammar_from_slides():
 
     noterminals = {"E", "T", "F"}
@@ -82,27 +83,40 @@ def test_extendGrammar_with_grammar_from_slides():
 
     gm = GM(noterminals, terminals, initial, productions)
     
-    frozen_noterminals = ['E▶️'] + list({'E', 'T', 'F'}).sort()
-    frozen_terminals = list({'id', '+', '*', '(', ')', '$'}).sort()
-    frozen_initial = 'E▶️'
-    frozen_productions = [(frozen_initial, initial)]
+    expected_frozen_noterminals = list({'E', 'T', 'F'})
+    expected_frozen_noterminals.sort()
+    expected_frozen_noterminals = ['E▶️'] + expected_frozen_noterminals
+    expected_frozen_terminals = list({'id', '+', '*', '(', ')'})
+    expected_frozen_terminals.sort()
+    expected_frozen_terminals += [END_OF_SENTENCE]
+    expected_frozen_initial = 'E▶️'
+    expected_frozen_productions = [(expected_frozen_initial, initial)]
     for head in productions:
         for body in productions[head]:
-            frozen_productions.append((head, MARK_POINTER + body + END_OF_SENTENCE))
+            expected_frozen_productions.append((head, MARK_POINTER + body + END_OF_SENTENCE))
 
-    frozen_productions = indexProductions(frozen_noterminals, frozen_terminals, frozen_productions)
+    expected_frozen_productions = indexProductions(expected_frozen_noterminals, expected_frozen_terminals, expected_frozen_productions)
 
-    expected = FrozenGM(frozen_noterminals, frozen_terminals, frozen_initial, frozen_productions)
+    expected = FrozenGM(expected_frozen_noterminals, expected_frozen_terminals, expected_frozen_initial, expected_frozen_productions)
 
     frozen_grammar = extendGrammar(gm)
+    frozen_grammar_noterminals = frozen_grammar.noterminals[1:]
+    frozen_grammar_noterminals.sort()
+    frozen_grammar_noterminals = [frozen_grammar.noterminals[0]] + frozen_grammar_noterminals
+
+    frozen_grammar_terminals = frozen_grammar.terminals[:len(frozen_grammar.terminals) - 1]
+    frozen_grammar_terminals.sort()
+    frozen_grammar_terminals += [frozen_grammar.terminals[len(frozen_grammar.terminals) - 1]]
+
     frozen_grammar = FrozenGM(
-        frozen_grammar.noterminals[0] + frozen_grammar.noterminals[1:].sort(),
-        frozen_grammar.terminals.sort(),
+        frozen_grammar_noterminals,
+        frozen_grammar_terminals,
         frozen_grammar.initial,
         frozen_grammar.productions
     )
     assert frozen_grammar == expected
-'''    
+
+'''
 def test_indexProductions():
 
     noterminals = [
@@ -143,6 +157,58 @@ def test_indexProductions():
     indexed_productions = indexProductions(noterminals, terminals, marked_productions)
     assert indexed_productions == expected
 
+def test_closure_with_canonical_items_0_from_slides_gramar():
+
+    noterminals = ["E▶️",'E', 'T', 'F']
+    terminals = ['+', '*', '(', ')', 'id', '$']
+
+    productions = [
+        ("E▶️", MARK_POINTER + 'E'),
+        ('E', MARK_POINTER + 'E+T'),
+        ('E', MARK_POINTER + 'T'),
+        ('T', MARK_POINTER + 'T*F'),
+        ('T', MARK_POINTER + 'F'),
+        ('F', MARK_POINTER + '(E)'),
+        ('F', MARK_POINTER + 'id')
+    ]
+    indexed_reference_productions = indexProductions(noterminals, terminals, productions)
+    initial_production = [indexed_reference_productions[0]]
+
+    expected = [
+        ("E▶️", MARK_POINTER + 'E'),
+        ('E', MARK_POINTER + 'E+T'),
+        ('E', MARK_POINTER + 'T'),
+        ('T', MARK_POINTER + 'T*F'),
+        ('T', MARK_POINTER + 'F'),
+        ('F', MARK_POINTER + '(E)'),
+        ('F', MARK_POINTER + 'id')
+    ]
+
+    expected = indexProductions(noterminals, terminals, expected)
+
+    item6 = [
+        ('E', 'E+'+ MARK_POINTER + 'T'),
+    ]
+    indexed_item6 = indexProductions(noterminals, terminals, item6)
+
+    expected_item6 = [
+        ('E', 'E+'+ MARK_POINTER + 'T'),
+        ('T', MARK_POINTER + 'T*F'),
+        ('T', MARK_POINTER + 'F'),
+        ('F', MARK_POINTER + '(E)'),
+        ('F', MARK_POINTER + 'id')
+    ]
+
+    indexed_expected_item6 = indexProductions(noterminals, terminals, expected_item6)
+
+
+    canonical_item = closure(initial_production, noterminals, indexed_reference_productions)
+    canonical_item6 = closure(indexed_item6, noterminals, indexed_reference_productions)
+
+    assert canonical_item == expected
+    assert canonical_item6 == indexed_expected_item6
+
+'''
 def test_goTo_with_canonical_item_0_from_slides_gramar():
 
     item = [
@@ -163,39 +229,7 @@ def test_goTo_with_canonical_item_0_from_slides_gramar():
     goto = goTo(item, symbol)
     assert goto == expected
 
-'''
-def test_closure_with_canonical_items_0_from_slides_gramar():
 
-    productions = [
-        ("E▶️", MARK_POINTER + 'E'),
-        ('E', MARK_POINTER + 'E+T'),
-        ('E', MARK_POINTER + 'T'),
-        ('T', MARK_POINTER + 'T*F'),
-        ('T', MARK_POINTER + 'F'),
-        ('F', MARK_POINTER + '(E)'),
-        ('F', MARK_POINTER + 'id')
-    ]
-
-    noterminals = ['E', 'T', 'F']
-
-    terminals = ['+', '*', '(', ')', 'id', '$']
-
-    expected = [
-        ("E▶️", MARK_POINTER + 'E'),
-        ('E', MARK_POINTER + 'E+T'),
-        ('E', MARK_POINTER + 'T'),
-        ('T', MARK_POINTER + 'T*F'),
-        ('T', MARK_POINTER + 'F'),
-        ('F', MARK_POINTER + '(E)'),
-        ('F', MARK_POINTER + 'id')
-    ]
-
-    productions = indexProductions(noterminals, terminals, productions)
-    initial_production = productions[0]
-
-    canonical_item = closure(initial_production, noterminals, productions)
-    assert canonical_item == expected
-'''
 def test_buildCanonicalItems_with_slides_gramar():
     noterminals = {"E", "T", "F"}
     terminals = {"id", "+", "*", "(", ")"}

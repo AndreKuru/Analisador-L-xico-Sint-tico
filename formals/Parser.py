@@ -85,6 +85,7 @@ def indexProductions(noterminals, terminals, marked_productions):
     """Junta as cabeças com seus respectivos corpos
     e converte as produções de listas para tuplas"""
     indexed_productions = list()
+
     for i in range(len(marked_productions)):
         indexed_productions.append((heads[i], bodies[i]))
 
@@ -116,31 +117,39 @@ def extendGrammar(grammar):
     return FrozenGM(noterminals, terminals, new_initial_noterminal, indexed_productions)
 
 
-def closure(canonical_item, total_columns, reference_productions):
+def closure(canonical_item, noterminals, reference_productions):
     # Inicialização
     canonical_item_index = 0
     read_symbols = set()
 
     while canonical_item_index < len(canonical_item):
+        print("canonical_item_index: ", canonical_item_index)
+        print("canonical_item: ", len(canonical_item))
+        if canonical_item_index == 30:
+            raise Exception("30")
 
         # Busca o símbolo de marcação
         symbol = 0
+        print("canonical_item[canonical_item_index]", canonical_item[canonical_item_index])
         body = canonical_item[canonical_item_index][1]
-        while body[symbol] != MARK_POINTER:
+        while body[symbol] != MARK_POINTER and symbol < len(body):
             symbol += 1
+
+        if symbol >= len(body):
+            raise Exception("Não encontra o " + MARK_POINTER)
 
         # Verifica se o símbolo logo depois do de marcação é um não terminal
         # e está sendo lido pela primeira
         read_symbol = body[symbol + 1]
-        print('-------------------READ SYMBOL-------------------')
-        print(read_symbol)
-        if read_symbol < len(total_columns) and read_symbol not in read_symbols:
+        print("read_symbol", read_symbol)
+        if read_symbol < len(noterminals) and read_symbol not in read_symbols:
             read_symbols.add(read_symbol)
+            print("read_symbol",read_symbol)
 
-        # Pega todas as produções do símbolo lido
-        for production in reference_productions:
-            if read_symbol == production[0]:
-                canonical_item.append(production)
+            # Pega todas as produções do símbolo lido
+            for production in reference_productions:
+                if read_symbol == production[0]:
+                    canonical_item.append(production)
 
         canonical_item_index += 1
 
