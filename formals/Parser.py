@@ -125,12 +125,19 @@ class ParserSLR:
     canonical_items: list[list[tuple[int, list[str | int]]]] = field(init=False)
     go_to_table: list[tuple[int, int, int]] = field(init=False)
 
-    firsts: list[int] = field(init=False)
+    firsts: list[set[int]] = field(init=False)
     firsts_untouched: set[int] = field(init=False)
     firsts_in_use: set[int] = field(init=False)
 
+    follows: list[set[int]] = field(init=False)
+    follows_untouched: set[int] = field(init=False)
+    follows_in_use: set[int] = field(init=False)
+
     slr_table_terminals: list[list[tuple[str, int]]] = field(init=False)
     slr_table_noterminals: list[list[int]] = field(init=False)
+
+    def getIndexEndOfSentence(self):
+        return len(self.grammar_reference.noterminals) + len(self.grammar_reference.terminals) - 1
 
     def __post__init__(self, grammar):
         self.generateSLRParser(grammar)
@@ -268,9 +275,9 @@ class ParserSLR:
                 symbol = production[index]
                 
                 # Se símbolo for não terminal
-                if symbol < len(self.grammar_reference.noterminal):
+                if symbol < len(self.grammar_reference.noterminal) or symbol == epslon:
                     self.calculateFirst(symbol, productions, epslon)
-                    self.firsts[noterminal].union(self.firsts[symbol])
+                    self.first[noterminal] = self.firsts[noterminal].union(self.firsts[symbol])
 
                     # Dispensa a produção atual caso tenha chego ao fim ou se nem todos os símbolos até o atual são anuláveis
                     index += 1
@@ -309,6 +316,64 @@ class ParserSLR:
             if index not in self.firsts_untouched:
                 self.calculateFirst(index, productions, epslon)
 
+    def calculateFollow(self, noterminal, productions, epslon):
+        if noterminal in self.follows_untouched:
+            self.follows_untouched.remove(noterminal)
+        
+        if noterminal in self.follows_in_use:
+            print("Error")
+        self.follows_in_use.add(noterminal)
+
+        # Vasculha todas as produções do não terminal selecionado 
+        for production in productions[noterminal]:
+            
+            # Vasculha cada símbolo até um terminal ou não terminal não anulável
+            # ignorando o ponto de marcação
+            # começando do final
+            index = len(production) - 1
+            while index > 1:
+                symbol = production[index]
+                if epslon in self.firsts[symbol]:
+                    nullable = True
+                
+                previous_symbol = productions[index - 1]
+                if not nullable:
+                    self.follows[previous_symbol] = self.follows[previous_symbol].union(self.firsts[symbol])
+                else:
+                    if productions[previous_symbol] < len(self.grammar_reference.noterminals):
+                        self.calculateFollow(previous_symbol, productions, epslon)
+                        self.follows[previous_symbol] = self.follows[previous_symbol].union(self.follows[noterminal])
+                
+                    index -= 1
+        
+        self.follows_in_use.remove(noterminal)
+
+    def calculateFollows(self):
+
+        # Inicializa os follows
+        self.follows = list()
+        self.follows_untouched = set()
+        self.follows_in_use = set()
+        productions = list()
+        for index in range(len(self.grammar_reference.noterminals)):
+            self.follows.append(set())
+            productions.append(list())
+            self.follows_untouched.add(index)
+
+        for (head, body) in self.grammar_reference.productions:
+            productions[head].append(body)
+
+        epslon = self.grammar_reference.terminals.index("&")
+
+        # Adiciona o símbolo de final de sentença ao follow do símbolo inicial
+        self.follows[0].add(self.getIndexEndOfSentence())
+
+        # Preenche os follows dos não terminais que ainda não foram preenchidos
+        for index in range(len(self.grammar_reference.noterminals)):
+            if index not in self.follows_untouched:
+                self.calculateFollow(index, productions, epslon)
+
+
     def buildSLRTableTerminals(self):
         # Initialize a tabela de terminais com o formato e tamanho certo
         self.initializeSLRTableTerminals
@@ -317,7 +382,7 @@ class ParserSLR:
         self.markShifts()
 
         # Calcular os follows
-        follows = calculateFollows(extended_gm)
+        follows = calculateFollows()
 
         # Marcar os reduces
         markReduces(SLRTableTerminals)
