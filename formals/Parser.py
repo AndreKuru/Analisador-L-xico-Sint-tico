@@ -3,6 +3,9 @@ from formals.GM import GM, FrozenGM
 import sys
 import os
 
+MARK_POINTER = "·"
+END_OF_SENTENCE = "$"
+
 
 def closure(item, symbol, productions, noterminals):
 
@@ -14,7 +17,7 @@ def closure(item, symbol, productions, noterminals):
         for production in productions:
             if production[0] == heads_to_be_inserted[i]:
                 item.append(production)
-                symbol_being_read = production[1][production[1].index(".") + 1]
+                symbol_being_read = production[1][production[1].index(MARK_POINTER) + 1]
 
                 if (
                     symbol_being_read not in heads_to_be_inserted
@@ -25,6 +28,7 @@ def closure(item, symbol, productions, noterminals):
         i += 1
 
     return item
+
 
 def indexBodies(symbols: list(), bodies: list(), shift: int):
 
@@ -41,8 +45,7 @@ def indexBodies(symbols: list(), bodies: list(), shift: int):
                 element = body[element_index]
 
                 # Procura o símbolo
-                if (type(element) == str and
-                symbol in element):
+                if type(element) == str and symbol in element:
                     # Salva as duas porções do corpo entre o símbolo a ser substituído
                     saved_slice_begin = body[:element_index]
                     saved_slice_end = body[element_index + 1 :]
@@ -69,6 +72,7 @@ def indexBodies(symbols: list(), bodies: list(), shift: int):
 
     return bodies
 
+
 def newInitialProduction(grammar):
 
     # Acrescenta um novo símbolo inicial
@@ -77,15 +81,53 @@ def newInitialProduction(grammar):
     return (initial, grammar.initial)
 
 
+def indexProductions(noterminals, terminals, marked_productions):
+
+    # Separa as produções em cabeça e corpos
+    heads = list()
+    bodies = list()
+
+    # Converte os corpos de produção de strings para listas de strings
+    for (_, body) in marked_productions:
+        bodies.append([body])
+
+    # Seleciona um não terminal
+    for noterminal_index in range(len(noterminals)):
+        noterminal = noterminals[noterminal_index]
+
+        # Substitui as cabeças pelos seus respectivos índices
+        for (head, _) in marked_productions:
+            if head == noterminal:
+                heads.append(noterminal_index)
+
+    # Substitui nos corpos das produções, os não terminais pelos seus respectivos índices
+    bodies = indexBodies(noterminals, bodies, 0)
+
+    # Substitui nos corpos das produções, os terminais pelos seus respectivos índices
+    bodies = indexBodies(terminals, bodies, len(noterminals))
+
+    """Junta as cabeças com seus respectivos corpos
+    e converte as produções de listas para tuplas"""
+    indexed_productions = list()
+    for i in range(len(marked_productions)):
+        indexed_productions.append((heads[i], bodies[i]))
+
+    return indexed_productions
+
+
 @dataclass
 class ParserSLR:
 
     grammar_reference: FrozenGM(
-        list[str], list[str], str, list[tuple[str, str]]
-        ) = field(init=False)
+        list[str], list[str], str, list[tuple[int, list[int | str]]]
+    ) = field(init=False)
 
     canonical_items: list[list[tuple[int, list[str | int]]]] = field(init=False)
     go_to_table: list[tuple[int, int, int]] = field(init=False)
+
+    firsts: list[int] = field(init=False)
+    firsts_untouched: set[int] = field(init=False)
+    firsts_in_use: set[int] = field(init=False)
 
     slr_table_terminals: list[list[tuple[str, int]]] = field(init=False)
     slr_table_noterminals: list[list[int]] = field(init=False)
@@ -93,56 +135,18 @@ class ParserSLR:
     def __post__init__(self, grammar):
         self.generateSLRParser(grammar)
 
-    
-    def indexProductions(self, marked_productions):
-
-        noterminals = self.grammar_reference.noterminals
-        terminals = self.grammar_reference.terminals
-
-        # Separa as produções em cabeça e corpos
-        heads = list()
-        bodies = list()
-
-        # Converte os corpos de produção de strings para listas de strings
-        for (_, body) in marked_productions:
-            bodies.append([body])
-
-        # Seleciona um não terminal
-        for noterminal_index in range(len(noterminals)):
-            noterminal = noterminals[noterminal_index]
-
-            # Substitui as cabeças pelos seus respectivos índices
-            for (head, _) in marked_productions:
-                if head == noterminal:
-                    heads.append(noterminal_index)
-
-        # Substitui nos corpos das produções, os não terminais pelos seus respectivos índices
-        bodies = indexBodies(noterminals, bodies, 0)
-
-        # Substitui nos corpos das produções, os terminais pelos seus respectivos índices
-        bodies = indexBodies(terminals, bodies, len(noterminals))
-
-        """Junta as cabeças com seus respectivos corpos
-        e converte as produções de listas para tuplas"""
-        indexed_productions = list()
-        for i in range(len(marked_productions)):
-            indexed_productions.append((heads[i], bodies[i]))
-
-        return indexed_productions
-
-
-    def markProductions(self):
-
-        productions = self.grammar_reference.productions
-
-        # Marca os corpos das produções com um ponto e o símbolo de final de sentença
-        marked_productions = list()
-        for (head, body) in productions:
-            if "." not in body:
-                marked_production = "." + body + '$'
-                marked_productions.append((head, marked_production))
-
-        return marked_productions
+    #    def markProductions(self):
+    #
+    #        productions = self.grammar_reference.productions
+    #
+    #        # Marca os corpos das produções com um ponto e o símbolo de final de sentença
+    #        marked_productions = list()
+    #        for (head, body) in productions:
+    #            if MARK_POINTER not in body:
+    #                marked_production = MARK_POINTER + body + END_OF_SENTENCE
+    #                marked_productions.append((head, marked_production))
+    #
+    #        return marked_productions
 
     def goTo(self, item, symbol):
 
@@ -150,12 +154,12 @@ class ParserSLR:
         for production in item:
             new_production = tuple()
             body = list(production[1])
-            dot_index = body.index(".")
+            dot_index = body.index(MARK_POINTER)
 
             symbol_being_read = body[dot_index + 1]
             if symbol_being_read == symbol:
-                body.remove(".")
-                body.insert(dot_index + 1, ".")
+                body.remove(MARK_POINTER)
+                body.insert(dot_index + 1, MARK_POINTER)
                 new_body = "".join(body)
                 new_production = (production[0], new_body)
                 new_productions.append(new_production)
@@ -170,7 +174,7 @@ class ParserSLR:
 
         # Acrescenta-o na lista de não terminais
         noterminals = [new_initial_noterminal] + list(grammar.noterminals)
-        terminals = list(grammar.terminals) + ["$"]
+        terminals = list(grammar.terminals) + [END_OF_SENTENCE]
 
         # Acrescenta a nova produção às produções
         productions = list()
@@ -179,27 +183,25 @@ class ParserSLR:
         # Converte cada produção de itens de dicionário para tuplas
         for head in grammar.productions:
             for body in grammar.productions[head]:
-                productions.append((head, body))
+                # Marca produções com um ponto e com o símbolo de final de sentença
+                productions.append((head, MARK_POINTER + body + END_OF_SENTENCE))
 
+        indexed_productions = indexProductions(productions)
         # Cria uma gramática congelada
         self.grammar_reference = FrozenGM(
-            noterminals, terminals, new_initial_noterminal, productions
+            noterminals, terminals, new_initial_noterminal, indexed_productions
         )
 
     def buildCanonicalItems(self):
 
         grammar = self.grammar_reference
 
-        # Marca produções com um ponto e com o símbolo de final de sentença
-        marked_productions = self.markProductions()
-        indexed_productions = self.indexProductions(marked_productions)
-
         canonical_items = list()
         first_body = marked_productions[marked_productions.index(grammar.initial)][1]
         first_production = (grammar.initial, first_body)
 
         first_item = [first_production]
-        symbol_being_read = first_body[first_body.index(".") + 1]
+        symbol_being_read = first_body[first_body.index(MARK_POINTER) + 1]
         if symbol_being_read in grammar.noterminals:
             new_item = closure(
                 first_item, symbol_being_read, marked_productions, grammar.noterminals
@@ -209,7 +211,7 @@ class ParserSLR:
         for index in range(len(canonical_items)):
             go_to = []
             for production in canonical_items[index]:
-                symbol_being_read = production[1][production[1].index(".") + 1]
+                symbol_being_read = production[1][production[1].index(MARK_POINTER) + 1]
                 go_to = goTo(canonical_items[index], symbol_being_read)
                 go_tos[(index, symbol_being_read)] = go_to
 
@@ -220,34 +222,92 @@ class ParserSLR:
     def initializeSLRTableTerminals(self):
         table = list()
         for _ in range(len(self.canonical_items)):
-          row = list()
-          for _ in range(len(self.grammar_reference.terminals)):
-            row.append(("", None))
-          table.append(row)
+            row = list()
+            for _ in range(len(self.grammar_reference.terminals)):
+                row.append(("", None))
+            table.append(row)
 
         self.slr_table_terminals = table
 
     def initializeSLRTableNoterminals(self):
         table = list()
         for _ in range(len(self.canonical_items)):
-          row = list()
-          for _ in range(len(self.grammar_reference.noterminals)):
-            row.append(None)
-          table.append(row)
+            row = list()
+            for _ in range(len(self.grammar_reference.noterminals)):
+                row.append(None)
+            table.append(row)
 
         self.slr_table_noterminals = table
 
-
-        
     def markShifts(self):
 
-      for go_to in self.go_to_table:
-        canonical_item_origin_index = go_to[0]
-        terminal_index = go_to[1]
-        canonical_item_destination_index = go_to[2]
-        shift = ("s", canonical_item_destination_index)
-        self.buildSLRTableTerminals[canonical_item_origin_index][terminal_index] = shift
+        for go_to in self.go_to_table:
+            canonical_item_origin_index = go_to[0]
+            terminal_index = go_to[1]
+            canonical_item_destination_index = go_to[2]
+            shift = ("s", canonical_item_destination_index)
+            self.buildSLRTableTerminals[canonical_item_origin_index][
+                terminal_index
+            ] = shift
 
+    def calculateFirst(self, noterminal, productions, epslon):
+        if noterminal in self.firsts_untouched:
+            self.firsts_untouched.remove(noterminal)
+        
+        if noterminal in self.firsts_in_use:
+            print("Error")
+        self.firsts_in_use.add(noterminal)
+
+        # Vasculha todas as produções do não terminal selecionado 
+        for production in productions[noterminal]:
+            
+            # Vasculha cada símbolo até um terminal ou não terminal não anulável
+            # ignorando o ponto de marcação
+            index = 1
+            while True:
+                symbol = production[index]
+                
+                # Se símbolo for não terminal
+                if symbol < len(self.grammar_reference.noterminal):
+                    self.calculateFirst(symbol, productions, epslon)
+                    self.firsts[noterminal].union(self.firsts[symbol])
+
+                    # Dispensa a produção atual caso tenha chego ao fim ou se nem todos os símbolos até o atual são anuláveis
+                    index += 1
+                    if (index >= len(productions) or
+                    epslon not in self.firsts[symbol]):
+                        break
+
+                # Se símbolo for terminal
+                else:
+                    self.firsts[noterminal].add(symbol)
+        
+        self.firsts_in_use.remove(noterminal)
+
+    def calculateFirsts(self):
+        # Inicializa os firsts
+        self.firsts = list()
+        self.firsts_untouched = set()
+        self.firsts_in_use = set()
+        productions = list()
+        for index in range(len(self.grammar_reference.noterminals)):
+            self.firsts.append(set())
+            productions.append(list())
+            self.firsts_untouched.add(index)
+
+        for (head, body) in self.grammar_reference.productions:
+            productions[head].append(body)
+
+        epslon = self.grammar_reference.terminals.index("&")
+
+        # Preenche os firsts dos terminais
+        for index in range(len(self.grammar_reference.terminals)):
+            self.firsts.append(set(index))
+
+        # Preenche os firsts dos não terminais que ainda não foram preenchidos
+        for index in range(len(self.grammar_reference.noterminals)):
+            if index not in self.firsts_untouched:
+                self.calculateFirst(index, productions, epslon)
 
     def buildSLRTableTerminals(self):
         # Initialize a tabela de terminais com o formato e tamanho certo
@@ -264,7 +324,6 @@ class ParserSLR:
 
         # Marcar o accept
         markAccept(SLRTableTerminals)
-
 
     def buildSLRTableNonTerminals(self):
         # Initialize a tabela de não terminais com o formato e tamanho certo

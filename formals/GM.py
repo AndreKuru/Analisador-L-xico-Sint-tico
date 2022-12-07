@@ -8,7 +8,7 @@ class FrozenGM:
     noterminals: list[str]
     terminals: list[str]
     initial: str
-    productions: list[tuple[str, str]]
+    productions: list[tuple[int, list[int | str]]]
 
 @dataclass
 class GM:
