@@ -2,7 +2,8 @@ from dataclasses import dataclass
 from itertools import combinations
 import copy
 
-def xsearch(old_class,transition):
+
+def xsearch(old_class, transition):
     i = 0
     while i < len(old_class):
         for x in old_class[i]:
@@ -10,6 +11,7 @@ def xsearch(old_class,transition):
                 return i
         i += 1
     return len(old_class)
+
 
 @dataclass
 class FA:
@@ -25,7 +27,7 @@ class FA:
         for t in self.transitions:
             if t[0] == state and t[1] == symbol:
                 return t
-    
+
     # Roda o automato e retorna (token, lexema, entrada restante)
     def run(self, entry) -> tuple[str, str, str]:
         self.runState(self.initial, entry, "")
@@ -83,8 +85,6 @@ class FA:
         for transition in self.transitions:
             print(transition)
 
-    
-    
     def determinizeFA(self):
         # Calcular e fecho
         e_closures = list()
@@ -189,7 +189,7 @@ class FA:
         # remover estados inalcançaveis
         reach = set([minimized.initial])
         new = set([minimized.initial])
-        
+
         while len(new):
             aux = set()
 
@@ -197,18 +197,24 @@ class FA:
                 for symbol in minimized.alphabet:
                     if (minimized.transition(state, symbol)) not in reach:
                         aux.add(minimized.transition(state, symbol))
-                    
 
             reach = reach.union(aux)
             new = aux
 
-        unreach = set([minimized.transitions[i][0] for i in range(len(minimized.transitions))]) - reach
+        unreach = (
+            set(
+                [minimized.transitions[i][0] for i in range(len(minimized.transitions))]
+            )
+            - reach
+        )
         for i in range(len(minimized.transitions)):
             if i >= len(minimized.transitions):
                 break
             elif not minimized.transitions[i][0] in reach:
                 minimized.transitions.remove(minimized.transitions[i])
-        minimized.final_states = {i for i in reach if i in minimized.final_states['token_generic']}
+        minimized.final_states = {
+            i for i in reach if i in minimized.final_states["token_generic"]
+        }
 
         # remover estados morto
         alive = minimized.final_states
@@ -216,7 +222,7 @@ class FA:
 
         while len(new):
             aux = set()
-            
+
             for i in minimized.transitions:
                 if minimized.transition(i[0], i[1]) in alive:
                     if i[0] not in alive:
@@ -224,8 +230,13 @@ class FA:
             alive = alive.union(aux)
             new = aux
 
-        dead = set([minimized.transitions[i][0] for i in range(len(minimized.transitions))]) - alive
-        
+        dead = (
+            set(
+                [minimized.transitions[i][0] for i in range(len(minimized.transitions))]
+            )
+            - alive
+        )
+
         for i in range(len(minimized.transitions) - 1):
             if i >= len(minimized.transitions):
                 break
@@ -243,7 +254,7 @@ class FA:
 
         for i in old_class:
             new_class = []
-    
+
             if len(i) < 2:
                 new_class.append(i)
                 continue
@@ -253,11 +264,13 @@ class FA:
                 same = True
                 for z in self.alphabet:
                     a, b = x
-                    if (xsearch(old_class, self.transition(a, z))) != (xsearch(old_class, self.transition(b, z))):
+                    if (xsearch(old_class, self.transition(a, z))) != (
+                        xsearch(old_class, self.transition(b, z))
+                    ):
                         new_class.append(set(a))
                         new_class.append(set(b))
                         same = False
-               
+
                 insert = False
                 if same:
                     for classx in new_class:
@@ -270,11 +283,11 @@ class FA:
 
                 if not insert:
                     new_class.append({a, b})
-        
+
         print(new_class)
         print("self")
         for i in self.transitions:
             print(i)
         print("minimized")
         for i in minimized.transitions:
-           print(i)
+            print(i)

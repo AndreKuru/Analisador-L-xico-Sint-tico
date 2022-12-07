@@ -90,6 +90,7 @@ def indexProductions(noterminals, terminals, marked_productions):
 
     return indexed_productions
 
+
 def extendGrammar(grammar):
 
     # Cria nova produção com o novo símbolo inicial
@@ -112,9 +113,8 @@ def extendGrammar(grammar):
 
     indexed_productions = indexProductions(productions)
     # Cria uma gramática congelada
-    return FrozenGM(
-        noterminals, terminals, new_initial_noterminal, indexed_productions
-    )
+    return FrozenGM(noterminals, terminals, new_initial_noterminal, indexed_productions)
+
 
 def closure(initial_production, total_columns, productions):
     # Inicialização
@@ -144,6 +144,7 @@ def closure(initial_production, total_columns, productions):
 
     return canonical_item
 
+
 def lookAhead(canonical_item: list()):
     new_canonical_item = list()
     for (head, body) in canonical_item:
@@ -155,6 +156,7 @@ def lookAhead(canonical_item: list()):
         new_canonical_item.append(new_production)
 
     return new_canonical_item
+
 
 def separate_canonical_items_by_symbol(canonical_items):
     # Vasculha todos os itens
@@ -179,6 +181,7 @@ def separate_canonical_items_by_symbol(canonical_items):
 
     return new_canonical_items
 
+
 def initializeSLRTable(total_canonical_items, total_columns, row_content):
     table = list()
     for _ in range(total_canonical_items):
@@ -189,25 +192,28 @@ def initializeSLRTable(total_canonical_items, total_columns, row_content):
 
     return table
 
-def mergeCanonicalItems(new_canonical_items: dict[str, set[tuple[str, list[int | str]]]], 
-                            old_canonical_items: list[list[tuple[str, list[int | str]]]]):
+
+def mergeCanonicalItems(
+    new_canonical_items: dict[str, set[tuple[str, list[int | str]]]],
+    old_canonical_items: list[list[tuple[str, list[int | str]]]],
+):
     # Pega um item novo
     for symbol in new_canonical_items:
         count = 0
         already_exists = False
         item_transitions = list()
-        
+
         # Pega um item velho
         for canonical_item in old_canonical_items:
 
             # Pega uma produção das velhas nesse item velho específico
             for production in canonical_item:
-                
+
                 # Checa pra ver se está no item novo específico
                 if production in canonical_item[symbol]:
-                        # Conta 
-                        count += 1
-                        break
+                    # Conta
+                    count += 1
+                    break
 
             # Se der hit em todas as produções é porque é o mesmo item canônico
             if count == len(canonical_item):
@@ -217,8 +223,9 @@ def mergeCanonicalItems(new_canonical_items: dict[str, set[tuple[str, list[int |
         if not already_exists:
             item_transitions.append((symbol, len(old_canonical_items)))
             old_canonical_items.append(list(new_canonical_items[symbol]))
-    
+
     return (old_canonical_items, item_transitions)
+
 
 def buildCanonicalItems(grammar_reference):
 
@@ -227,38 +234,42 @@ def buildCanonicalItems(grammar_reference):
     item_index = 0
     items_transitions = list()
     while item_index < len(new_canonical_items):
-    
+
         # Adquire o closure
-        new_canonical_item = closure(canonical_item_looked_ahead,
-                                    grammar_reference.noterminals,
-                                    grammar_reference.productions
-                                )
+        new_canonical_item = closure(
+            canonical_item_looked_ahead,
+            grammar_reference.noterminals,
+            grammar_reference.productions,
+        )
         # Agrupa todos possíveis novos itens canônicos por símbolo de transição
         new_canonical_items = separate_canonical_items_by_symbol(new_canonical_item)
 
         # Atualiza os itens canonicos com os novos
-        canonical_items, item_transitions = mergeCanonicalItems(new_canonical_items, canonical_items)
+        canonical_items, item_transitions = mergeCanonicalItems(
+            new_canonical_items, canonical_items
+        )
 
         # Adiciona as transições do último item canonico
         items_transitions.append[item_transitions]
 
         # Passa para o próximo item canônico não processado
-        item_index = len(items_transitions) # item_index +=1
+        item_index = len(items_transitions)  # item_index +=1
 
         # Move o pointeiro
         canonical_item_looked_ahead = lookAhead(canonical_items[item_index])
 
     return (canonical_items, items_transitions)
 
+
 def markShifts(items_transitions, buildSLRTableTerminals):
 
     for canonical_item_origin_index in range(len(items_transitions)):
         symbol_index = items_transitions[canonical_item_origin_index][0]
-        canonical_item_destination_index = items_transitions[canonical_item_origin_index][1]
+        canonical_item_destination_index = items_transitions[
+            canonical_item_origin_index
+        ][1]
         shift = ("s", canonical_item_destination_index)
-        buildSLRTableTerminals[canonical_item_origin_index][
-            symbol_index
-        ] = shift
+        buildSLRTableTerminals[canonical_item_origin_index][symbol_index] = shift
     return buildSLRTableTerminals
 
 
@@ -291,7 +302,6 @@ class ParserSLR:
             + len(self.grammar_reference.terminals)
             - 1
         )
-
 
     def calculateFirst(self, noterminal, productions, epslon):
         if noterminal in self.firsts_untouched:
@@ -414,9 +424,13 @@ class ParserSLR:
             if index not in self.follows_untouched:
                 self.calculateFollow(index, productions, epslon)
 
-    def buildSLRTableTerminals(self, grammar_reference, canonical_items, items_transitions):
+    def buildSLRTableTerminals(
+        self, grammar_reference, canonical_items, items_transitions
+    ):
         # Initialize a tabela de terminais com o formato e tamanho certo
-        slr_table_terminals = initializeSLRTable(len(canonical_items), len(grammar_reference.terminals), ("", None))
+        slr_table_terminals = initializeSLRTable(
+            len(canonical_items), len(grammar_reference.terminals), ("", None)
+        )
 
         # Marcar os shifts
         slr_table_terminals = markShifts(slr_table_terminals, items_transitions)
@@ -430,9 +444,13 @@ class ParserSLR:
         # # Marcar o accept
         # markAccept(SLRTableTerminals)
 
-    def buildSLRTableNoTerminals(self, grammar_reference, canonical_items, items_transitions):
+    def buildSLRTableNoTerminals(
+        self, grammar_reference, canonical_items, items_transitions
+    ):
         # Initialize a tabela de não terminais com o formato e tamanho certo
-        slr_table_noterminals = initializeSLRTable(len(canonical_items), len(grammar_reference.noterminals), None)
+        slr_table_noterminals = initializeSLRTable(
+            len(canonical_items), len(grammar_reference.noterminals), None
+        )
 
         # # Marcar os desvios
         # markGoTos(SLRTableNonTerminals)
@@ -446,8 +464,12 @@ class ParserSLR:
         canonical_items, items_transitions = buildCanonicalItems(grammar_reference)
 
         # Contruir tabela SLR
-        self.buildSLRTableTerminals(grammar_reference, canonical_items, items_transitions)
-        self.buildSLRTableNoTerminals(grammar_reference, canonical_items, items_transitions)
+        self.buildSLRTableTerminals(
+            grammar_reference, canonical_items, items_transitions
+        )
+        self.buildSLRTableNoTerminals(
+            grammar_reference, canonical_items, items_transitions
+        )
 
         # Demais entradas na tabela são erros
 

@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import sys
 import os
 
+
 @dataclass
 class FrozenGM:
 
@@ -9,6 +10,7 @@ class FrozenGM:
     terminals: list[str]
     initial: str
     productions: list[tuple[int, list[int | str]]]
+
 
 @dataclass
 class GM:
@@ -119,15 +121,15 @@ def readGM(file):
         fragments = new_fragments
         new_fragments = []
 
-    while '' in fragments:
-        fragments.remove('')
+    while "" in fragments:
+        fragments.remove("")
     terminals = set(fragments)
 
     return initial, productions, noterminals, terminals
 
 
-'''initial, productions, noterminals, terminals = readGM(sys.argv[1])
+"""initial, productions, noterminals, terminals = readGM(sys.argv[1])
 gm = GM(noterminals, terminals, initial, productions)
 gm.eliminateLR()
 gm.printGM()
-'''
+"""

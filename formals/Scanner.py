@@ -116,12 +116,12 @@ class Scanner:
     # TODO def writeTablesToFiles():
 
 
-#a1 = readFA(sys.argv[1])
+# a1 = readFA(sys.argv[1])
 # a2 = lerAF(sys.argv[2])
 # a3 = uniaoAutomato([a1, a2])
 # a3.imprimirAF()
 # lerER(sys.argv[1])
 # a1.printFA()
 # a1.determinizeFA()
-#a1.minimizeFA()
-#a1.printFA()
+# a1.minimizeFA()
+# a1.printFA()

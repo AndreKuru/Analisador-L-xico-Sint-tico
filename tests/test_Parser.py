@@ -1,35 +1,22 @@
 from formals.GM import GM, FrozenGM
 from formals.Parser import ParserSLR, indexBodies
 
+
 def test_indexBodies_with_slides_gramar():
 
     marked_productions = [
-        ('E▶️', '.E'),
-        ('E', '.E+T'),
-        ('E', '.T'),
-        ('T', '.T*F'),
-        ('T', '.FF'),
-        ('F', '.(E)'),
-        ('F', '.id')
+        ("E▶️", ".E"),
+        ("E", ".E+T"),
+        ("E", ".T"),
+        ("T", ".T*F"),
+        ("T", ".FF"),
+        ("F", ".(E)"),
+        ("F", ".id"),
     ]
 
-    noterminals = [
-        'E▶️',
-        'E',
-        'T',
-        'F'
-        ]
-    
-    terminals = [
-        'id',
-        '+',
-        '*',
-        '(',
-        '=',
-        '[',
-        ']',
-        ')'
-    ]
+    noterminals = ["E▶️", "E", "T", "F"]
+
+    terminals = ["id", "+", "*", "(", "=", "[", "]", ")"]
 
     # Separa as produções em cabeça e corpos
     heads = list()
@@ -55,18 +42,18 @@ def test_indexBodies_with_slides_gramar():
     bodies = indexBodies(terminals, bodies, len(noterminals))
 
     if False:
-      # Converte os índices dentro das produções de string para inteiro
-      for body in bodies:
-          body_index = bodies.index(body)
+        # Converte os índices dentro das produções de string para inteiro
+        for body in bodies:
+            body_index = bodies.index(body)
 
-          for element in body:
-              element_index = body.index(str(element))
+            for element in body:
+                element_index = body.index(str(element))
 
-              if element.isnumeric():
-                  element = int(element)
-                  body[element_index] = element
+                if element.isnumeric():
+                    element = int(element)
+                    body[element_index] = element
 
-          bodies[body_index] = body
+            bodies[body_index] = body
 
     """Junta as cabeças com seus respectivos corpos
     e converte as produções de listas para tuplas"""
@@ -75,16 +62,17 @@ def test_indexBodies_with_slides_gramar():
         indexed_productions.append((heads[i], bodies[i]))
 
     expected = [
-        (0, ['.', 1]),
-        (1, ['.', 1, 5, 2]),
-        (1, ['.', 2]),
-        (2, ['.', 2, 6, 3]),
-        (2, ['.', 3, 3]),
-        (3, ['.', 7, 1, 11]),
-        (3, ['.',4])
+        (0, [".", 1]),
+        (1, [".", 1, 5, 2]),
+        (1, [".", 2]),
+        (2, [".", 2, 6, 3]),
+        (2, [".", 3, 3]),
+        (3, [".", 7, 1, 11]),
+        (3, [".", 4]),
     ]
 
     assert indexed_productions == expected
+
 
 '''
 def test_markProductions_with_grammar_from_slides():
