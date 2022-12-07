@@ -26,23 +26,23 @@ def closure(item, symbol, productions, noterminals):
 
     return item
 
-def indexBodies(symbols: list(), bodies, shift):
+def indexBodies(symbols: list(), bodies: list(), shift: int):
 
     # Seleciona um símbolo de uma lista de símbolos
     for symbol_index in range(len(symbols)):
         symbol = symbols[symbol_index]
 
         # Seleciona um corpo de produção
-        for body in bodies:
-            body_index = bodies.index(body)
+        for body_index in range(len(bodies)):
+            body = bodies[body_index]
 
             # Itera pelos elementos do corpo
-            for element in body:
+            for element_index in range(len(body)):
+                element = body[element_index]
 
                 # Procura o símbolo
-                if symbol in element:
-                    element_index = body.index(element)
-
+                if (type(element) == str and
+                symbol in element):
                     # Salva as duas porções do corpo entre o símbolo a ser substituído
                     saved_slice_begin = body[:element_index]
                     saved_slice_end = body[element_index + 1 :]
@@ -53,7 +53,7 @@ def indexBodies(symbols: list(), bodies, shift):
                     # Substitui o símbolo pelo seu respectivo índice
                     last_position = len(splited_element) - 1
                     for i in range(last_position, 0, -1):
-                        splited_element.insert(i, str(symbol_index + shift))
+                        splited_element.insert(i, symbol_index + shift)
 
                     # Une as porções salvas com o índice entre elas
                     splited_element = (
@@ -121,19 +121,6 @@ class ParserSLR:
 
         # Substitui nos corpos das produções, os terminais pelos seus respectivos índices
         bodies = indexBodies(terminals, bodies, len(noterminals))
-
-        # Converte os índices dentro das produções de string para inteiro
-        for body in bodies:
-            body_index = bodies.index(body)
-
-            for element in body:
-                element_index = body.index(str(element))
-
-                if element.isnumeric():
-                    element = int(element)
-                    body[element_index] = element
-
-            bodies[body_index] = body
 
         """Junta as cabeças com seus respectivos corpos
         e converte as produções de listas para tuplas"""
