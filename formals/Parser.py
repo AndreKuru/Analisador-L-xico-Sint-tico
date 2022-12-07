@@ -297,14 +297,29 @@ def markReduces(slr_table_terminals, canonical_items, follows, reference_product
         # Obtem e salva o número da produção, caso o símbolo a ser lido é o símbolo de final de sentença 
         production_index = readCanonicalItemEndOfSentence(canonical_item, reference_productions)
         if production_index != -1:
+
             # Para cada follow da cabeça da produção
             for follow in follows[reference_productions[production_index][0]]:
                 reduce = ("r", production_index)
+
                 # Adiciona reduce número da produção
                 slr_table_terminals[canonical_item_index][follow] = reduce
+
     return slr_table_terminals
 
+def markAccept(slr_table_terminals, canonical_items, productions):
+    # Seleciona a primeira produção
+    initial_production = productions[0]
 
+    # A procura nos itens canônicos
+    for canonical_item in canonical_items:
+        if initial_production in canonical_item:
+
+            # Marca a ação aceitar no item pelo símbolo de final de sentença
+            accept = ("acc", 0)
+            slr_table_terminals[canonical_item][-1] = accept
+
+    return slr_table_terminals
 
 @dataclass
 class ParserSLR:
@@ -473,10 +488,10 @@ class ParserSLR:
         self.calculateFollows()
 
         # Marcar os reduces
-        markReduces(slr_table_terminals, canonical_items, self.follows, grammar_reference.productions)
+        slr_table_terminals = markReduces(slr_table_terminals, canonical_items, self.follows, grammar_reference.productions)
 
-        # # Marcar o accept
-        # markAccept(SLRTableTerminals)
+        # Marcar o accept
+        slr_table_terminals = markAccept(slr_table_terminals, canonical_items, grammar_reference.productions)
 
     def buildSLRTableNoTerminals(
         self, grammar_reference, canonical_items, items_transitions
