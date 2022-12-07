@@ -5,6 +5,7 @@ from formals.FA import FA
 @dataclass
 class Node:
 
+    token: str
     data: str
     above: "Node"
     left: "Node"
@@ -205,5 +206,5 @@ class BinaryTree:
             if self.highestPos in states[i]:
                 final_states.add(i)
 
-        return FA(len(states), alphabet, 0, final_states, transitions)
+        return FA(len(states), alphabet, 0, {self.token: final_states}, transitions)
         # new  FA(total_states, alphabet, initial, final_states, transitions)

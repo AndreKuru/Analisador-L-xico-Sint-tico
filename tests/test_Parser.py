@@ -1,6 +1,214 @@
-from formals.GM import GM
-from formals.Parser import Parser, buildCanonicalItems, generateSLRParser
+from formals.GM import GM, FrozenGM
+from formals.Parser import ParserSLR, indexBodies
 
+
+def test_indexBodies_with_slides_gramar():
+
+    marked_productions = [
+        ("E▶️", ".E"),
+        ("E", ".E+T"),
+        ("E", ".T"),
+        ("T", ".T*F"),
+        ("T", ".FF"),
+        ("F", ".(E)"),
+        ("F", ".id"),
+    ]
+
+    noterminals = ["E▶️", "E", "T", "F"]
+
+    terminals = ["id", "+", "*", "(", "=", "[", "]", ")"]
+
+    # Separa as produções em cabeça e corpos
+    heads = list()
+    bodies = list()
+
+    # Converte os corpos de produção de strings para listas de strings
+    for (_, body) in marked_productions:
+        bodies.append([body])
+
+    # Seleciona um não terminal
+    for noterminal_index in range(len(noterminals)):
+        noterminal = noterminals[noterminal_index]
+
+        # Substitui as cabeças pelos seus respectivos índices
+        for (head, _) in marked_productions:
+            if head == noterminal:
+                heads.append(noterminal_index)
+
+    # Substitui nos corpos das produções, os não terminais pelos seus respectivos índices
+    bodies = indexBodies(noterminals, bodies, 0)
+
+    # Substitui nos corpos das produções, os terminais pelos seus respectivos índices
+    bodies = indexBodies(terminals, bodies, len(noterminals))
+
+    if False:
+        # Converte os índices dentro das produções de string para inteiro
+        for body in bodies:
+            body_index = bodies.index(body)
+
+            for element in body:
+                element_index = body.index(str(element))
+
+                if element.isnumeric():
+                    element = int(element)
+                    body[element_index] = element
+
+            bodies[body_index] = body
+
+    """Junta as cabeças com seus respectivos corpos
+    e converte as produções de listas para tuplas"""
+    indexed_productions = list()
+    for i in range(len(marked_productions)):
+        indexed_productions.append((heads[i], bodies[i]))
+
+    expected = [
+        (0, [".", 1]),
+        (1, [".", 1, 5, 2]),
+        (1, [".", 2]),
+        (2, [".", 2, 6, 3]),
+        (2, [".", 3, 3]),
+        (3, [".", 7, 1, 11]),
+        (3, [".", 4]),
+    ]
+
+    assert indexed_productions == expected
+
+
+'''
+def test_markProductions_with_grammar_from_slides():
+
+    productions = [
+        ('E▶️', 'E'),
+        ('E', 'E+T'),
+        ('E', 'T'),
+        ('T', 'T*F'),
+        ('T', 'F'),
+        ('F', '(E)'),
+        ('F', 'id')
+    ]
+
+    expected = [
+        ('E▶️', '.E$'),
+        ('E', '.E+T$'),
+        ('E', '.T$'),
+        ('T', '.T*F$'),
+        ('T', '.F$'),
+        ('F', '.(E)$'),
+        ('F', '.id$')
+    ]
+
+    marked_productions = markProductions(productions)
+    assert marked_productions == expected
+
+
+def test_extendGrammar_with_grammar_from_slides():
+
+    noterminals = {"E", "T", "F"}
+    terminals = {"id", "+", "*", "(", ")"}
+    initial = "E"
+    productions = {"E": {"E+T", "T"}, "T": {"T*F", "F"}, "F": {"(E)", "id"}}
+
+    gm = GM(noterminals, terminals, initial, productions)
+    
+    frozen_noterminals = ['E▶️'] + list({'E', 'T', 'F'})
+    frozen_terminals = list({'id', '+', '*', '(', ')'})
+    frozen_initial = 'E▶️'
+    frozen_productions = [(frozen_initial, initial)]
+    for head in productions:
+        for body in productions[head]:
+            frozen_productions.append((head, body))
+
+    expected = FrozenGM(frozen_noterminals, frozen_terminals, frozen_initial, frozen_productions)
+
+    frozen_grammar = extendGrammar(gm)
+    assert frozen_grammar == expected
+def test_indexProductions():
+
+    noterminals = [
+        'E▶️',
+        'E',
+        'T',
+        'F'
+        ]
+    
+    terminals = [
+        'id',
+        '+',
+        '*',
+        '(',
+        ')'
+    ]
+
+    marked_productions = [
+        ('E▶️', '.E'),
+        ('E', '.E+T'),
+        ('E', '.T'),
+        ('T', '.T*F'),
+        ('T', '.F'),
+        ('F', '.(E)'),
+        ('F', '.id')
+    ]
+
+    expected = [
+        (0, ['.', 1]),
+        (1, ['.', 1, 5, 2]),
+        (1, ['.', 2]),
+        (2, ['.', 2, 6, 3]),
+        (2, ['.', 3]),
+        (3, ['.', 7, 1, 8]),
+        (3, ['.',4])
+    ]
+
+    indexed_productions = indexProductions(noterminals, terminals, marked_productions)
+    assert indexed_productions == expected
+
+def test_goTo_with_canonical_item_0_from_slides_gramar():
+
+    item = [
+        ("E'", '.E'),
+        ('E', '.E+T'),
+        ('E', '.T'),
+        ('T', '.T*F'),
+        ('T', '.F'),
+        ('F', '.(E)'),
+        ('F', '.id')
+    ]
+    symbol = 'id'
+
+    expected = [
+        ('F', 'id.')
+        ]
+    
+    goto = goTo(item, symbol)
+    assert goto == expected
+
+def test_closure_with_canonical_items_0_from_slides_gramar():
+
+    item = [("E'", '.E')]
+    symbol = 'E'
+    productions = [
+        ("E'", '.E'),
+        ('E', '.E+T'),
+        ('E', '.T'),
+        ('T', '.T*F'),
+        ('T', '.F'),
+        ('F', '.(E)'),
+        ('F', '.id')
+    ]
+    noterminals = ['E', 'T', 'F']
+
+    expected = [
+        ("E'", '.E'),
+        ('E', '.E+T'),
+        ('E', '.T'),
+        ('T', '.T*F'),
+        ('T', '.F'),
+        ('F', '.(E)'),
+        ('F', '.id')
+    ]
+
+    canonical_item = closure(item, symbol, productions, noterminals)
+    assert canonical_item == expected
 
 def test_buildCanonicalItems_with_slides_gramar():
     noterminals = {"E", "T", "F"}
@@ -189,3 +397,4 @@ def test_generateSLRParser_with_slides_gramar():
     )
 
     assert parser == expected
+'''

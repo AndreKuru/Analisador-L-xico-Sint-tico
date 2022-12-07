@@ -2,6 +2,19 @@ from dataclasses import dataclass
 import copy
 import random
 
+<<<<<<< HEAD
+=======
+
+def xsearch(old_class, transition):
+    i = 0
+    while i < len(old_class):
+        for x in old_class[i]:
+            if x == transition:
+                return i
+        i += 1
+    return len(old_class)
+>>>>>>> fa77cb202ea132402aa747848f068697559ce215
+
 
 @dataclass
 class FA:
@@ -16,9 +29,16 @@ class FA:
     def transition(self, state, symbol):
         for t in self.transitions:
             if t[0] == state and t[1] == symbol:
+<<<<<<< HEAD
                 return int(t[2])
     
     def runFA(self, entry) -> tuple[str, str, str]:
+=======
+                return t
+
+    # Roda o automato e retorna (token, lexema, entrada restante)
+    def run(self, entry) -> tuple[str, str, str]:
+>>>>>>> fa77cb202ea132402aa747848f068697559ce215
         self.runState(self.initial, entry, "")
 
     def runState(self, current_state, lexeme, entry) -> tuple[str, str, str]:
@@ -74,8 +94,6 @@ class FA:
         for transition in self.transitions:
             print(transition)
 
-    
-    
     def determinizeFA(self):
         # Calcular e fecho
         e_closures = list()
@@ -191,6 +209,7 @@ class FA:
         #       reach = reach.union(aux)
         #       new = aux
 
+<<<<<<< HEAD
         #   unreach = set([self.transitions[i][0] for i in range(len(self.transitions))]) - reach
         #   for i in range(len(self.transitions)):
         #       if i >= len(self.transitions):
@@ -302,11 +321,41 @@ class FA:
         self.total_states -= len(dead)
         
 
+=======
+        # remover estados inalcançaveis
+        reach = set([minimized.initial])
+        new = set([minimized.initial])
+
+        while len(new):
+            aux = set()
+
+            for state in new:
+                for symbol in minimized.alphabet:
+                    if (minimized.transition(state, symbol)) not in reach:
+                        aux.add(minimized.transition(state, symbol))
+>>>>>>> fa77cb202ea132402aa747848f068697559ce215
 
     def discardUnreach(self):
 
+<<<<<<< HEAD
         reachable = {self.initial}
         last_reach = set()
+=======
+        unreach = (
+            set(
+                [minimized.transitions[i][0] for i in range(len(minimized.transitions))]
+            )
+            - reach
+        )
+        for i in range(len(minimized.transitions)):
+            if i >= len(minimized.transitions):
+                break
+            elif not minimized.transitions[i][0] in reach:
+                minimized.transitions.remove(minimized.transitions[i])
+        minimized.final_states = {
+            i for i in reach if i in minimized.final_states["token_generic"]
+        }
+>>>>>>> fa77cb202ea132402aa747848f068697559ce215
 
         for state in self.transitions:
             if state[0] in reachable:
@@ -316,6 +365,7 @@ class FA:
         unreach = []
         unreach_state = []
 
+<<<<<<< HEAD
         
         for i in self.transitions:
             if i[0] not in reachable:
@@ -396,6 +446,28 @@ class FA:
             
             if self.initial in classx:
                 new_s = self.initial
+=======
+        while len(new):
+            aux = set()
+
+            for i in minimized.transitions:
+                if minimized.transition(i[0], i[1]) in alive:
+                    if i[0] not in alive:
+                        aux.add(i[0])
+            alive = alive.union(aux)
+            new = aux
+
+        dead = (
+            set(
+                [minimized.transitions[i][0] for i in range(len(minimized.transitions))]
+            )
+            - alive
+        )
+
+        for i in range(len(minimized.transitions) - 1):
+            if i >= len(minimized.transitions):
+                break
+>>>>>>> fa77cb202ea132402aa747848f068697559ce215
             else:
                 try:
                     new_s = classx.pop()
@@ -406,6 +478,7 @@ class FA:
                 if transition[2] in classx:
                    transition[2] = new_s
 
+<<<<<<< HEAD
             statesx.append(new_s)
         
         new_i = 0
@@ -445,3 +518,52 @@ class FA:
             print(i)
 
         print("ok")
+=======
+        # classes de equivalencia
+        old_class = [
+            minimized.final_states,
+            set(
+                [minimized.transitions[i] for i in range(len(minimized.transitions))]
+            ).difference(minimized.final_states),
+        ]
+
+        for i in old_class:
+            new_class = []
+
+            if len(i) < 2:
+                new_class.append(i)
+                continue
+
+            pair = list(combinations(i, 2))
+            for x in pair:
+                same = True
+                for z in self.alphabet:
+                    a, b = x
+                    if (xsearch(old_class, self.transition(a, z))) != (
+                        xsearch(old_class, self.transition(b, z))
+                    ):
+                        new_class.append(set(a))
+                        new_class.append(set(b))
+                        same = False
+
+                insert = False
+                if same:
+                    for classx in new_class:
+                        if a in classx:
+                            classx = classx.union(set(b))
+                            insert = True
+                        elif b in classx:
+                            classx = classx.union(set(a))
+                            insert = True
+
+                if not insert:
+                    new_class.append({a, b})
+
+        print(new_class)
+        print("self")
+        for i in self.transitions:
+            print(i)
+        print("minimized")
+        for i in minimized.transitions:
+            print(i)
+>>>>>>> fa77cb202ea132402aa747848f068697559ce215
