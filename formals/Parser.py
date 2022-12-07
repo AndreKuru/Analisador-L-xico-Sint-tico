@@ -179,15 +179,6 @@ def separate_canonical_items_by_symbol(canonical_items):
 
     return new_canonical_items
 
-def goto(canonical_item: list()) -> list():
-    # Move o pointeiro
-    canonical_item_looked_ahead = lookAhead(canonical_item)
-
-    # Adquiri o closure
-    canonical_item_looked_ahead_closure = closure(canonical_item_looked_ahead)
-
-    return canonical_item_looked_ahead_closure
-
 def initializeSLRTable(total_canonical_items, total_columns, row_content):
     table = list()
     for _ in range(total_canonical_items):
@@ -231,30 +222,31 @@ def mergeCanonicalItems(new_canonical_items: dict[str, set[tuple[str, list[int |
 
 def buildCanonicalItems(grammar_reference):
 
-    canonical_item_initial = closure( 
-        grammar_reference.productions[0],
-        grammar_reference.noterminals,
-        grammar_reference.productions,
-    )
-
-    canonical_items = [canonical_item_initial]
+    canonical_item_looked_ahead = grammar_reference.productions[0]
+    canonical_items = [canonical_item_looked_ahead]
     item_index = 0
     items_transitions = list()
     while item_index < len(new_canonical_items):
     
-        # Move o ponteiro e gera o closure
-        new_canonical_item = goto(canonical_items[item_index])
-
+        # Adquire o closure
+        new_canonical_item = closure(canonical_item_looked_ahead,
+                                    grammar_reference.noterminals,
+                                    grammar_reference.productions
+                                )
         # Agrupa todos possíveis novos itens canônicos por símbolo de transição
         new_canonical_items = separate_canonical_items_by_symbol(new_canonical_item)
 
-        # Atualiza os novos itens
+        # Atualiza os itens canonicos com os novos
         canonical_items, item_transitions = mergeCanonicalItems(new_canonical_items, canonical_items)
 
+        # Adiciona as transições do último item canonico
         items_transitions.append[item_transitions]
 
         # Passa para o próximo item canônico não processado
         item_index = len(items_transitions) # item_index +=1
+
+        # Move o pointeiro
+        canonical_item_looked_ahead = lookAhead(canonical_items[item_index])
 
     return (canonical_items, items_transitions)
 
