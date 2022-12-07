@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field
-from ast import operand
+#from ast import operand
 from cmath import exp
 from enum import Enum
-from tkinter import W
-from Tree import BinaryTree
+#from tkinter import W
+from formals.Tree import BinaryTree
 
 
 class ExpressionType(Enum):
@@ -82,7 +82,7 @@ class RE:
             print("ERROR")
 
         # Inicializa a árvore
-        tree = BinaryTree(token, expression[0])
+        tree = BinaryTree(expression[0])
 
         # Insere todos os símbolos da expressão na árvore
         for i in range(1, len(expression)):

@@ -1,4 +1,5 @@
 from formals.GM import GM
+from formals.FA import FA
 
 def test_eliminateLR():
     gr = GM('E',

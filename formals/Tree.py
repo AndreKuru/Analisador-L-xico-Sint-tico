@@ -31,7 +31,7 @@ class BinaryTree:
 
     # Insere mais um nodo entre o atual e o pai dele
     def insertAbove(self, data):
-        newNode = Node(data, self.currentNode.above, self.currentNode, None)
+        newNode = Node(data, self.currentNode.above, self.currentNode, None, None)
         self.currentNode.setAbove(newNode)
         self.currentNode = newNode
 

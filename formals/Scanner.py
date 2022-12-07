@@ -1,13 +1,9 @@
-<<<<<<< HEAD
 from formals.FA import FA
-=======
->>>>>>> fa77cb202ea132402aa747848f068697559ce215
 import sys
 import os
 from dataclasses import dataclass, field
-from RE import RE
-from RE import RE
-from FA import FA
+from formals.RE import RE
+from formals.FA import FA
 
 
 def readFA(arquivo):
@@ -41,7 +37,7 @@ def readER(arquivo) -> RE:
         definition = linha.split(": ")[0]
         expression = linha.split(": ")[1]
         definitions.append((definition, expression))
-    return RE(definition)
+    return RE(definitions)
 
 
 def automataUnion(automatas: list[FA]) -> FA:

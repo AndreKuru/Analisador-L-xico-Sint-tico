@@ -1,27 +1,63 @@
+from formals.GM import readGM
+from formals.Scanner import readFA, readER
 from formals.FA import FA
-from formals.Scanner import *
+from formals.RE import RE
 
-def test_readFA():
-    fa = readFA("afda.txt")
+def test_read_GM():
 
-    expected = FA(
-        4,
-        {"a", "b"},
-        0,
-        {"token_generic": {0, 1, 2, 3}},
-        [
-            (0, "a", 1),
-            (0, "b", 0),
-            (1, "a", 0),
-            (1, "b", 1),
-            (2, "a", 3),
-            (2, "b", 2),
-            (3, "a", 2),
-            (3, "b", 3),
-        ],
+    expected = (
+        "S▶️",
+        {
+            "S▶️": {"bB", "aA", "&"},
+            "S": {"aA", "bB"},
+            "A": {"aS", "bC", "A"},
+            "B": {
+                "aC",
+                "B",
+                "bS",
+            },
+            "C": {"ba", "aB"},
+        },
+        {"S▶️", "S", "A", "B", "C"},
+        {"&", "ba", "b", "a"},
     )
 
-    assert fa == expected
+    exitGM = readGM("gr1.txt")
+    assert exitGM == expected
+
+
+def test_read_FA():
+
+    expected = FA(
+        5,
+        {"a", "b"},
+        0,
+        {"token_generic": {3}},
+        [
+            (0, "a", 1),
+            (0, "b", 2),
+            (1, "a", 1),
+            (1, "b", 3),
+            (2, "a", 1),
+            (2, "b", 2),
+            (3, "a", 1),
+            (3, "b", 4),
+            (4, "a", 1),
+            (4, "b", 2),
+        ],
+    )
+    exit = readFA("afdb.txt")
+    assert exit == expected
+
+
+def test_read_RE():
+
+    expected = RE(
+        [("digit", "[0-9]"), ("letter", "[a-zA-Z]"), ("id", "letter(letter | digit)*")]
+    )
+
+    exitRE = readER("./tests/er2.txt")
+    assert exitRE == expected
 
 def test_automataUnion():
     automatas = []
