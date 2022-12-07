@@ -31,6 +31,7 @@ def readFA(arquivo):
 def readER(arquivo) -> RE:
     arquivo = open(arquivo, "r")
     arquivo_linhas = arquivo.readlines()
+    arquivo_linhas = [linhas.rstrip("\n") for linhas in arquivo_linhas]
     definitions = list()
     for linha in arquivo_linhas:
         definition = linha.split(": ")[0]
@@ -115,12 +116,12 @@ class Scanner:
     # TODO def writeTablesToFiles():
 
 
-a1 = readFA(sys.argv[1])
+#a1 = readFA(sys.argv[1])
 # a2 = lerAF(sys.argv[2])
 # a3 = uniaoAutomato([a1, a2])
 # a3.imprimirAF()
 # lerER(sys.argv[1])
 # a1.printFA()
 # a1.determinizeFA()
-a1.minimizeFA()
-a1.printFA()
+#a1.minimizeFA()
+#a1.printFA()

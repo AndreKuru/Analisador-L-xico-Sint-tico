@@ -119,6 +119,8 @@ def readGM(file):
         fragments = new_fragments
         new_fragments = []
 
+    while '' in fragments:
+        fragments.remove('')
     terminals = set(fragments)
 
     return initial, productions, noterminals, terminals
