@@ -1,4 +1,4 @@
-import FA
+from formals.FA import FA
 import sys
 import os
 
@@ -20,7 +20,7 @@ def readFA(arquivo):
                 transitions.append((int(transition[0]), transition[1], int(i)))
         else:
             transitions.append((int(transition[0]), transition[1], int(transition[2])))
-    automata = FA.FA(states, alphabet, initial, final_states, transitions)
+    automata = FA(states, alphabet, initial, final_states, transitions)
     # automato.imprimirAF()
     return automata
 
@@ -37,7 +37,7 @@ def readER(arquivo):
     print(f"Expressões: {expressions}")
 
 
-def automataUnion(automatas: list[FA.FA]) -> FA:
+def automataUnion(automatas: list[FA]) -> FA:
     states = 1
     # Estado inicial é sempre 0
     final_states = set()
@@ -60,17 +60,17 @@ def automataUnion(automatas: list[FA.FA]) -> FA:
 
         states += automata.states
 
-    automata = FA.FA(states, alphabet, 0, final_states, transitions)
+    automata = FA(states, alphabet, 0, final_states, transitions)
 
     return automata
 
 
-a1 = readFA(sys.argv[1])
+#a1 = readFA(sys.argv[1])
 # a2 = lerAF(sys.argv[2])
 # a3 = uniaoAutomato([a1, a2])
 # a3.imprimirAF()
 # lerER(sys.argv[1])
 #a1.printFA()
 #a1.determinizeFA()
-a1.minimizeFA();
-a1.printFA()
+#a1.minimizeFA();
+#a1.printFA()
