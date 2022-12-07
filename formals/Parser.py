@@ -130,9 +130,7 @@ class ParserSLR:
     firsts_in_use: set[int] = field(init=False)
 
     follows: list[set[int]] = field(init=False)
-    follows_untouched: set[int] = field(init=False)
-    follows_in_use: set[int] = field(init=False)
-    follows_shared_from: list[int] = field(init=False)
+    follows_shared_from: set[int] = field(init=False)
 
     slr_table_terminals: list[list[tuple[str, int]]] = field(init=False)
     slr_table_noterminals: list[list[int]] = field(init=False)
@@ -348,8 +346,8 @@ class ParserSLR:
 
                 # Checa se o elemento atual é noterminals
                 if symbol < len(self.grammar_reference.noterminals):
+                    self.follows_shared_from[noterminal].add(symbol)
                     self.updateFollow(symbol, self.follows[noterminal], list())
-                    self.follows[symbol] =  self.follows[symbol].union(self.follows[noterminal])
 
                 # Símbolo consegue ser anulável
                 if epslon in self.firsts[symbol]:
