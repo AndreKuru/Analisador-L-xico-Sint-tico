@@ -1,5 +1,5 @@
 from formals.GM import GM, FrozenGM
-from formals.Parser import ParserSLR, closure, indexProductions, markProductions
+from formals.Parser import ParserSLR
 
 def test_markProductions_with_grammar_from_slides():
 
@@ -26,7 +26,7 @@ def test_markProductions_with_grammar_from_slides():
     marked_productions = markProductions(productions)
     assert marked_productions == expected
 
-'''
+
 def test_extendGrammar_with_grammar_from_slides():
 
     noterminals = {"E", "T", "F"}
@@ -137,6 +137,7 @@ def test_closure_with_canonical_items_0_from_slides_gramar():
     canonical_item = closure(item, symbol, productions, noterminals)
     assert canonical_item == expected
 
+'''
 def test_buildCanonicalItems_with_slides_gramar():
     noterminals = {"E", "T", "F"}
     terminals = {"id", "+", "*", "(", ")"}

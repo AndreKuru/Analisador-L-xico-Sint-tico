@@ -26,7 +26,6 @@ def closure(item, symbol, productions, noterminals):
 
     return item
 
-
 def indexBodies(symbols: list(), bodies, shift):
 
     # Seleciona um símbolo de uma lista de símbolos
@@ -70,65 +69,6 @@ def indexBodies(symbols: list(), bodies, shift):
 
     return bodies
 
-
-def indexProductions(noterminals: list(), terminals: list(), marked_productions):
-
-    # Separa as produções em cabeça e corpos
-    heads = list()
-    bodies = list()
-    # Converte os corpos de produção de strings para listas de strings
-    for (_, body) in marked_productions:
-        bodies.append([body])
-
-    # Seleciona um não terminal
-    for noterminal_index in range(len(noterminals)):
-        noterminal = noterminals[noterminal_index]
-
-        # Substitui as cabeças pelos seus respectivos índices
-        for (head, _) in marked_productions:
-            if head == noterminal:
-                heads.append(noterminal_index)
-
-    # Substitui nos corpos das produções, os não terminais pelos seus respectivos índices
-    bodies = indexBodies(noterminals, bodies, 0)
-
-    # Substitui nos corpos das produções, os terminais pelos seus respectivos índices
-    bodies = indexBodies(terminals, bodies, len(noterminals))
-
-    # Converte os índices dentro das produções de string para inteiro
-    for body in bodies:
-        body_index = bodies.index(body)
-
-        for element in body:
-            element_index = body.index(str(element))
-
-            if element.isnumeric():
-                element = int(element)
-                body[element_index] = element
-
-        bodies[body_index] = body
-
-    """Junta as cabeças com seus respectivos corpos
-    e converte as produções de listas para tuplas"""
-    indexed_productions = list()
-    for i in range(len(marked_productions)):
-        indexed_productions.append((heads[i], bodies[i]))
-
-    return indexed_productions
-
-
-def markProductions(productions):
-
-    # Marca os corpos das produções com um ponto e o símbolo de final de sentença
-    marked_productions = list()
-    for (head, body) in productions:
-            if "." not in body:
-                marked_production = "." + body + '$'
-                marked_productions.append((head, marked_production))
-
-    return marked_productions
-
-
 def newInitialProduction(grammar):
 
     # Acrescenta um novo símbolo inicial
@@ -152,6 +92,70 @@ class ParserSLR:
 
     def __post__init__(self, grammar):
         self.generateSLRParser(grammar)
+
+    
+    def indexProductions(self, marked_productions):
+
+        noterminals = self.grammar_reference.noterminals
+        terminals = self.grammar_reference.terminals
+
+        # Separa as produções em cabeça e corpos
+        heads = list()
+        bodies = list()
+
+        # Converte os corpos de produção de strings para listas de strings
+        for (_, body) in marked_productions:
+            bodies.append([body])
+
+        # Seleciona um não terminal
+        for noterminal_index in range(len(noterminals)):
+            noterminal = noterminals[noterminal_index]
+
+            # Substitui as cabeças pelos seus respectivos índices
+            for (head, _) in marked_productions:
+                if head == noterminal:
+                    heads.append(noterminal_index)
+
+        # Substitui nos corpos das produções, os não terminais pelos seus respectivos índices
+        bodies = indexBodies(noterminals, bodies, 0)
+
+        # Substitui nos corpos das produções, os terminais pelos seus respectivos índices
+        bodies = indexBodies(terminals, bodies, len(noterminals))
+
+        # Converte os índices dentro das produções de string para inteiro
+        for body in bodies:
+            body_index = bodies.index(body)
+
+            for element in body:
+                element_index = body.index(str(element))
+
+                if element.isnumeric():
+                    element = int(element)
+                    body[element_index] = element
+
+            bodies[body_index] = body
+
+        """Junta as cabeças com seus respectivos corpos
+        e converte as produções de listas para tuplas"""
+        indexed_productions = list()
+        for i in range(len(marked_productions)):
+            indexed_productions.append((heads[i], bodies[i]))
+
+        return indexed_productions
+
+
+    def markProductions(self):
+
+        productions = self.grammar_reference.productions
+
+        # Marca os corpos das produções com um ponto e o símbolo de final de sentença
+        marked_productions = list()
+        for (head, body) in productions:
+            if "." not in body:
+                marked_production = "." + body + '$'
+                marked_productions.append((head, marked_production))
+
+        return marked_productions
 
     def goTo(self, item, symbol):
 
@@ -200,10 +204,8 @@ class ParserSLR:
         grammar = self.grammar_reference
 
         # Marca produções com um ponto e com o símbolo de final de sentença
-        marked_productions = markProductions(grammar.productions)
-        indexed_productions = indexProductions(
-            grammar.terminals, grammar.noterminals, marked_productions
-        )
+        marked_productions = self.markProductions()
+        indexed_productions = self.indexProductions(marked_productions)
 
         canonical_items = list()
         first_body = marked_productions[marked_productions.index(grammar.initial)][1]
