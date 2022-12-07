@@ -111,32 +111,34 @@ def extendGrammar(grammar):
             # Marca produções com um ponto e com o símbolo de final de sentença
             productions.append((head, MARK_POINTER + body + END_OF_SENTENCE))
 
-    indexed_productions = indexProductions(productions)
+    indexed_productions = indexProductions(noterminals, terminals, productions)
     # Cria uma gramática congelada
     return FrozenGM(noterminals, terminals, new_initial_noterminal, indexed_productions)
 
 
-def closure(initial_production, total_columns, productions):
+def closure(canonical_item, total_columns, reference_productions):
     # Inicialização
-    canonical_item = [initial_production]
     canonical_item_index = 0
     read_symbols = set()
 
-    while canonical_item_index < canonical_item:
+    while canonical_item_index < len(canonical_item):
 
         # Busca o símbolo de marcação
         symbol = 0
-        while canonical_item[canonical_item_index][1][symbol] != MARK_POINTER:
+        body = canonical_item[canonical_item_index][1]
+        while body[symbol] != MARK_POINTER:
             symbol += 1
 
         # Verifica se o símbolo logo depois do de marcação é um não terminal
         # e está sendo lido pela primeira
-        read_symbol = canonical_item[canonical_item_index][1][symbol + 1]
+        read_symbol = body[symbol + 1]
+        print('-------------------READ SYMBOL-------------------')
+        print(read_symbol)
         if read_symbol < len(total_columns) and read_symbol not in read_symbols:
             read_symbols.add(read_symbol)
 
         # Pega todas as produções do símbolo lido
-        for production in productions:
+        for production in reference_productions:
             if read_symbol == production[0]:
                 canonical_item.append(production)
 
