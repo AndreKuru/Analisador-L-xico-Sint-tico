@@ -13,29 +13,22 @@ from formals.Parser import (
 )
 
 
-"""
+
 def test_read_GM():
 
     expected = (
-        "S▶️",
+        "S",
         {
-            "S▶️": {"bB", "aA", "&"},
-            "S": {"aA", "bB"},
-            "A": {"aS", "bC", "A"},
-            "B": {
-                "aC",
-                "B",
-                "bS",
+            "S": {"Bd", "&"},
+            "B": {"Ab", "Bc"},
+            "A": {"Sa", "&",}
             },
-            "C": {"ba", "aB"},
-        },
-        {"S▶️", "S", "A", "B", "C"},
-        {"&", "ba", "b", "a"},
+        {"S", "A", "B"},
+        {"&", "d", "c", "a", "b"},
     )
 
-    exitGM = readGM("gr1.txt")
+    exitGM = readGM("gr3.txt")
     assert exitGM == expected
-"""
 
 
 def test_indexBodies_with_slides_gramar():
