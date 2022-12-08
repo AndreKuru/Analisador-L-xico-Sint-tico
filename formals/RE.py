@@ -24,7 +24,7 @@ def getType(char):
     if char.isalnum() or char == "(" or char == ")":
         return ExpressionType.operand
 
-    print("ERROR")
+    raise Exception("Erro")
 
 
 @dataclass
@@ -48,7 +48,7 @@ class RE:
             self.expressionsUntouched.remove(self.getDefinition(index))
 
         if self.getDefinition(index) in self.expressionsInUse:
-            print("Error")
+            raise Exception("Erro")
         self.expressionsInUse.add(self.getDefinition(index))
 
         fragments = list()
@@ -57,7 +57,7 @@ class RE:
 
             if len(fragments):
                 if self.definitions[i] in self.expressionsInUse:
-                    print("Error")
+                    raise Exception("Erro")
 
                 if self.expressions[index] not in self.expressionsUntouched:
                     self.openExpression(self.expressions[index])
@@ -81,7 +81,7 @@ class RE:
         # O primeiro símbolo tem de ser um operador
         currentType = getType(expression[0])
         if currentType != ExpressionType.operand:
-            print("ERROR")
+            raise Exception("Erro")
 
         # Inicializa a árvore
         tree = BinaryTree(expression[0])
@@ -97,7 +97,7 @@ class RE:
                 if currentType == ExpressionType.operand:
                     tree.insertRight(e)
                 else:
-                    print("ERROR")
+                    raise Exception("Erro")
             elif currentType == ExpressionType.operand:
                 tree.insertAbove("·")
                 tree.insertRight(e)

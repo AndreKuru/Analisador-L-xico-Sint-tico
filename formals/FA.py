@@ -32,7 +32,7 @@ class FA:
             for token in self.final_states:
                 if current_state in self.final_states[token]:
                     return (token, lexeme, entry)
-            print("Error")
+            raise Exception("Erro")
 
         # Se ainda resta entrada continua rodando
         if len(
@@ -59,7 +59,7 @@ class FA:
                     ],
                 )
 
-        print("Error")
+        raise Exception("Erro")
 
     def printFA(self):
         print(f"Número de estados: {self.total_states}")
@@ -188,8 +188,7 @@ class FA:
                             alives.add(token[0])
 
         if self.initial not in alives:
-            print("ERRO")
-            return False
+            raise Exception("Erro")
 
         dead = []
         dead_state = []
@@ -299,7 +298,7 @@ class FA:
                 try:
                     new_s = classx.pop()
                 except KeyError:
-                    print("Error")
+                    raise Exception("Erro")
 
             for transition in self.transitions:
                 if transition[2] in classx:
@@ -323,7 +322,7 @@ class FA:
                         random.choice(list(self.final_states["token_generic"])),
                     )
                 except KeyError:
-                    print("ERROR")
+                    raise Exception("Erro")
                 self.transitions.remove(i)
 
         self.transitions.append(new_i)
@@ -339,12 +338,4 @@ class FA:
             if type(i) == int:
                 self.transitions.remove(i)
 
-        print(statesx)
-        print(self.total_states)
-        print(self.alphabet)
-        print(self.initial)
-        print(self.final_states)
-        for i in self.transitions:
-            print(i)
 
-        print("ok")

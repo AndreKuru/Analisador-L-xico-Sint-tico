@@ -49,7 +49,6 @@ class GM:
                         else:
                             a.append(nonterminal[j][index + 1])
 
-                    print("there's left recursion")
 
                     id += 1
                     if index >= 0:
@@ -59,7 +58,6 @@ class GM:
                             b = nonterminal[id][-1]
                         # A → βA′
                         auxdic[f"{nt}"] = f"{b}{nt}'"
-                        print(f"{nt}->{b}{nt}'")
                         txt = ""
                         for w in a:
                             txt += f"{w}{b}{nt}'|"
@@ -69,13 +67,10 @@ class GM:
                         # print(txt)
 
                     id = 0
-        print(auxdic["("])
         for key, value in auxdic.items():
             if key.isalpha() or key[0].isalpha():
                 strValue = str(value)
                 self.productions[key] = set([strValue])
-        for key, value in self.productions.items():
-            print(key, value)
 
     def factoring():
         pass

@@ -170,16 +170,11 @@ def closure(canonical_item, noterminals, reference_productions):
     read_symbols = set()
 
     while canonical_item_index < len(canonical_item):
-        print("canonical_item_index: ", canonical_item_index)
-        print("canonical_item: ", len(canonical_item))
         if canonical_item_index == 30:
             raise Exception("30")
 
         # Busca o símbolo de marcação
         symbol = 0
-        print(
-            "canonical_item[canonical_item_index]", canonical_item[canonical_item_index]
-        )
         body = canonical_item[canonical_item_index][1]
         while body[symbol] != MARK_POINTER and symbol < len(body):
             symbol += 1
@@ -190,10 +185,8 @@ def closure(canonical_item, noterminals, reference_productions):
         # Verifica se o símbolo logo depois do de marcação é um não terminal
         # e está sendo lido pela primeira
         read_symbol = body[symbol + 1]
-        print("read_symbol", read_symbol)
         if read_symbol < len(noterminals) and read_symbol not in read_symbols:
             read_symbols.add(read_symbol)
-            print("read_symbol", read_symbol)
 
             # Pega todas as produções do símbolo lido
             for production in reference_productions:
@@ -448,7 +441,7 @@ class ParserSLR:
             self.firsts_untouched.remove(noterminal)
 
         if noterminal in self.firsts_in_use:
-            print("Error")
+            raise Exception("Erro")
         self.firsts_in_use.add(noterminal)
 
         # Vasculha todas as produções do não terminal selecionado
@@ -507,7 +500,7 @@ class ParserSLR:
         self, follows_index: int, follows_content: set, follows_opened: list()
     ):
         if follows_index in follows_opened:
-            print("Error")
+            raise Exception("Erro")
         follows_opened.append(follows_opened)
 
         self.follows[follows_index] = self.follows[follows_index].union(follows_content)

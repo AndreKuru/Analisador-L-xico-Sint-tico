@@ -45,12 +45,12 @@ class BinaryTree:
     def closeBracket(self):
 
         if self.currentNode == "(":
-            print("ERROR")
+            raise Exception("Erro")
 
         while self.currentNode.getData() != "(":
             self.currentNode = self.currentNode.above
             if self.currentNode == None:
-                print("ERROR")
+                raise Exception("Erro")
 
         # Remove o nodo com paretêse
         above = self.currentNode.above
