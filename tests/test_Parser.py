@@ -9,6 +9,7 @@ from formals.Parser import (
     closure,
     lookAhead,
     readCanonicalItemEndOfSentence,
+    readGM
 )
 
 
@@ -17,21 +18,15 @@ def test_read_GM():
     expected = (
         "S",
         {
-            "S": {"bB", "aA", "&"},
-            "S": {"aA", "bB"},
-            "A": {"aS", "bC", "A"},
-            "B": {
-                "aC",
-                "B",
-                "bS",
-            },
-            "C": {"ba", "aB"},
+            "S": {"Bd", "&"},
+            "B": {"Ab", "Bc"},
+            "A": {"Sa", "&",}
         },
-        {"S", "S", "A", "B", "C"},
-        {"&", "ba", "b", "a"},
+        {"S", "B", "A"},
+        {"c", "&", "b", "d", "a"},
     )
 
-    exitGM = test_read_GM("gr1.txt")
+    exitGM = readGM("gr3.txt")
     assert exitGM == expected
 
 
