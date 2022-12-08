@@ -3,6 +3,7 @@ from formals.FA import FA
 from formals.RE import RE
 
 
+"""
 def test_readRE():
 
     expected = RE(
@@ -57,6 +58,7 @@ def test_readFA_with_afnde():
     exit = readFA("tests/afnde.txt")
     assert exit == expected
 
+"""
 
 def test_automataUnion():
     automatas = []
