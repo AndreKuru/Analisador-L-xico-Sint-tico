@@ -12,6 +12,7 @@ def test_readRE():
     exitRE = readER("./tests/er2.txt")
     assert exitRE == expected
 
+
 def test_readFA_with_afdb():
 
     expected = FA(
@@ -35,6 +36,7 @@ def test_readFA_with_afdb():
     exit = readFA("tests/afdb.txt")
     assert exit == expected
 
+
 def test_readFA_with_afnde():
 
     expected = FA(
@@ -54,7 +56,6 @@ def test_readFA_with_afnde():
     )
     exit = readFA("tests/afnde.txt")
     assert exit == expected
-
 
 
 def test_automataUnion():
@@ -119,7 +120,7 @@ def test_automataUnion():
             (7, "b", 6),
             (7, "a", 7),
             (8, "b", 8),
-            (8, "a", 8)
+            (8, "a", 8),
         ],
     )
 

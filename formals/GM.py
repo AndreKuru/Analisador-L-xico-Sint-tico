@@ -81,8 +81,6 @@ class GM:
         pass
 
 
-
-
 """initial, productions, noterminals, terminals = readGM(sys.argv[1])
 gm = GM(noterminals, terminals, initial, productions)
 gm.eliminateLR()

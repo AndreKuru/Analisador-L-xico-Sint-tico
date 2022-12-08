@@ -11,6 +11,7 @@ from formals.Parser import (
     readCanonicalItemEndOfSentence,
 )
 
+
 def test_read_GM():
 
     expected = (
@@ -32,8 +33,6 @@ def test_read_GM():
 
     exitGM = readGM("gr1.txt")
     assert exitGM == expected
-
-
 
 
 def test_indexBodies_with_slides_gramar():

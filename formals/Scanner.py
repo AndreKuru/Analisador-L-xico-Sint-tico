@@ -61,7 +61,11 @@ def automataUnion(automatas: list[FA]) -> FA:
 
         for transition in automata.transitions:
             transitions.append(
-                (transition[0] + total_states, transition[1], transition[2] + total_states)
+                (
+                    transition[0] + total_states,
+                    transition[1],
+                    transition[2] + total_states,
+                )
             )
 
         total_states += automata.total_states
