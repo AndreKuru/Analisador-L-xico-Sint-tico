@@ -23,7 +23,7 @@ def readFA(arquivo):
     arquivo_linhas = arquivo.readlines()
     arquivo_linhas = [linhas.rstrip("\n") for linhas in arquivo_linhas]
 
-    states = int(arquivo_linhas[0])
+    total_states = int(arquivo_linhas[0])
     initial = int(arquivo_linhas[1])
     final_states = {"token_generic": set(int(i) for i in arquivo_linhas[2].split(","))}
     alphabet = set(arquivo_linhas[3].split(","))
@@ -35,35 +35,38 @@ def readFA(arquivo):
                 transitions.append((int(transition[0]), transition[1], int(i)))
         else:
             transitions.append((int(transition[0]), transition[1], int(transition[2])))
-    automata = FA(states, alphabet, initial, final_states, transitions)
+    automata = FA(total_states, alphabet, initial, final_states, transitions)
     # automato.imprimirAF()
     return automata
 
 
 def automataUnion(automatas: list[FA]) -> FA:
-    states = 1
-    # Estado inicial é sempre 0
-    final_states = set()
-    alphabet = set()
+    # Inicialização
+    total_states = 1
+    alphabet = {"&"}
+    # initial = 0  porque o estado inicial é sempre 0
+    final_states = dict()
     transitions = list()
 
     for automata in automatas:
         alphabet = alphabet.union(automata.alphabet)
-        aux = (0, "&", automata.initial + states)
-        transitions.append((aux))
+        new_transition_with_epslon = (0, "&", automata.initial + total_states)
+        transitions.append((new_transition_with_epslon))
 
         for token in automata.final_states:
+            if token not in final_states:
+                final_states[token] = set()
             for final_state in automata.final_states[token]:
-                final_states[token].add(final_state + states)
+                final_states[token].add(final_state + total_states)
 
         for transition in automata.transitions:
             transitions.append(
-                (transition[0] + states, transition[1], transition[2] + states)
+                (transition[0] + total_states, transition[1], transition[2] + total_states)
             )
 
-        states += automata.states
+        total_states += automata.total_states
 
-    automata = FA(states, alphabet, 0, final_states, transitions)
+    automata = FA(total_states, alphabet, 0, final_states, transitions)
 
     return automata
 
