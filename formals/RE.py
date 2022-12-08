@@ -104,7 +104,7 @@ class RE:
             else:
                 tree.insertAbove(e)
 
-        tree.fillTree
+        tree.fillTree()
 
     def generateFAs(self):
 

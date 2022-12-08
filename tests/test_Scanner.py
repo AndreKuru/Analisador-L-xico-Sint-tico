@@ -1,33 +1,18 @@
-from formals.GM import readGM
-from formals.Scanner import readFA, readER
+from formals.Scanner import readFA, readER, automataUnion
 from formals.FA import FA
 from formals.RE import RE
 
 
-def test_read_GM():
+def test_readRE():
 
-    expected = (
-        "S▶️",
-        {
-            "S▶️": {"bB", "aA", "&"},
-            "S": {"aA", "bB"},
-            "A": {"aS", "bC", "A"},
-            "B": {
-                "aC",
-                "B",
-                "bS",
-            },
-            "C": {"ba", "aB"},
-        },
-        {"S▶️", "S", "A", "B", "C"},
-        {"&", "ba", "b", "a"},
+    expected = RE(
+        [("digit", "[0-9]"), ("letter", "[a-zA-Z]"), ("id", "letter(letter | digit)*")]
     )
 
-    exitGM = readGM("gr1.txt")
-    assert exitGM == expected
+    exitRE = readER("./tests/er2.txt")
+    assert exitRE == expected
 
-
-def test_read_FA():
+def test_readFA_with_afdb():
 
     expected = FA(
         5,
@@ -47,18 +32,29 @@ def test_read_FA():
             (4, "b", 2),
         ],
     )
-    exit = readFA("afdb.txt")
+    exit = readFA("tests/afdb.txt")
     assert exit == expected
 
+def test_readFA_with_afnde():
 
-def test_read_RE():
-
-    expected = RE(
-        [("digit", "[0-9]"), ("letter", "[a-zA-Z]"), ("id", "letter(letter | digit)*")]
+    expected = FA(
+        4,
+        {"a", "b", "&"},
+        0,
+        {"token_generic": {3}},
+        [
+            (0, "&", 1),
+            (0, "&", 2),
+            (1, "a", 1),
+            (1, "b", 2),
+            (2, "a", 1),
+            (2, "&", 3),
+            (3, "b", 3),
+        ],
     )
+    exit = readFA("tests/afnde.txt")
+    assert exit == expected
 
-    exitRE = readER("./tests/er2.txt")
-    assert exitRE == expected
 
 
 def test_automataUnion():
@@ -118,3 +114,7 @@ def test_automataUnion():
             (4, "b", 4),
         ],
     )
+
+    result = automataUnion(automatas)
+
+    assert result == expect

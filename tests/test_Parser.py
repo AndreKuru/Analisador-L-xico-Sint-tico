@@ -11,7 +11,29 @@ from formals.Parser import (
     readCanonicalItemEndOfSentence,
 )
 
-"""PASSOU NO TESTE"""
+def test_read_GM():
+
+    expected = (
+        "S▶️",
+        {
+            "S▶️": {"bB", "aA", "&"},
+            "S": {"aA", "bB"},
+            "A": {"aS", "bC", "A"},
+            "B": {
+                "aC",
+                "B",
+                "bS",
+            },
+            "C": {"ba", "aB"},
+        },
+        {"S▶️", "S", "A", "B", "C"},
+        {"&", "ba", "b", "a"},
+    )
+
+    exitGM = readGM("gr1.txt")
+    assert exitGM == expected
+
+
 
 
 def test_indexBodies_with_slides_gramar():

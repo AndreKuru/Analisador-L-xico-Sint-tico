@@ -6,8 +6,20 @@ from formals.RE import RE
 from formals.FA import FA
 
 
+def readER(arquivo) -> RE:
+    arquivo = open(arquivo, "r")
+    arquivo_linhas = arquivo.readlines()
+    arquivo_linhas = [linhas.rstrip("\n") for linhas in arquivo_linhas]
+    definitions = list()
+    for linha in arquivo_linhas:
+        definition = linha.split(": ")[0]
+        expression = linha.split(": ")[1]
+        definitions.append((definition, expression))
+    return RE(definitions)
+
+
 def readFA(arquivo):
-    arquivo = open(f"tests/{arquivo}", "r")
+    arquivo = open(arquivo, "r")
     arquivo_linhas = arquivo.readlines()
     arquivo_linhas = [linhas.rstrip("\n") for linhas in arquivo_linhas]
 
@@ -26,18 +38,6 @@ def readFA(arquivo):
     automata = FA(states, alphabet, initial, final_states, transitions)
     # automato.imprimirAF()
     return automata
-
-
-def readER(arquivo) -> RE:
-    arquivo = open(arquivo, "r")
-    arquivo_linhas = arquivo.readlines()
-    arquivo_linhas = [linhas.rstrip("\n") for linhas in arquivo_linhas]
-    definitions = list()
-    for linha in arquivo_linhas:
-        definition = linha.split(": ")[0]
-        expression = linha.split(": ")[1]
-        definitions.append((definition, expression))
-    return RE(definitions)
 
 
 def automataUnion(automatas: list[FA]) -> FA:
