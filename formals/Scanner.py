@@ -102,10 +102,8 @@ class Scanner:
 
         # le o source text com os automatos
 
-    def run(self, source_text):
-        entry = source_text
-
-        while len(source_text) >= 0:
+    def run(self, entry):
+        while len(entry) >= 0:
             result = self.token_recognizer.run(entry)
 
             token = result[0]
@@ -115,6 +113,8 @@ class Scanner:
             self.lexemas_table.append(lexema)
 
             entry = result[2]
+
+        # TODO Invocar WriteTablesToFiles()
 
     def clearTables(self):
         self.token_table = list()

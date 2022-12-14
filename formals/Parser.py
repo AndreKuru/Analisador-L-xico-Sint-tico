@@ -101,7 +101,7 @@ def newInitialProduction(grammar):
     # Acrescenta um novo símbolo inicial
     initial = grammar.initial + "▶️"
 
-    return (initial, grammar.initial)
+    return (initial, MARK_POINTER + grammar.initial)
 
 
 def indexProductions(noterminals, terminals, marked_productions):
@@ -164,7 +164,9 @@ def extendGrammar(grammar):
     return FrozenGM(noterminals, terminals, new_initial_noterminal, indexed_productions)
 
 
-def closure(canonical_item, noterminals, reference_productions):
+def closure(
+    canonical_item: list[tuple[int, list[int]]], noterminals, reference_productions
+):
     # Inicialização
     canonical_item_index = 0
     read_symbols = set()
@@ -176,7 +178,7 @@ def closure(canonical_item, noterminals, reference_productions):
         # Busca o símbolo de marcação
         symbol = 0
         body = canonical_item[canonical_item_index][1]
-        while body[symbol] != MARK_POINTER and symbol < len(body):
+        while symbol < len(body) and body[symbol] != MARK_POINTER:
             symbol += 1
 
         if symbol >= len(body):
@@ -235,7 +237,7 @@ def separate_canonical_items_by_symbol(canonical_items):
     # Vasculha todos os itens
     new_canonical_items = dict()
     canonical_item_index = 0
-    while canonical_item_index < canonical_items:
+    while canonical_item_index < len(canonical_items):
         production = canonical_items[canonical_item_index]
 
         # Busca o símbolo de marcação
@@ -246,9 +248,9 @@ def separate_canonical_items_by_symbol(canonical_items):
         # Separa a produção por símbolo lido
         read_symbol = production[1][symbol + 1]
         if read_symbol not in new_canonical_items:
-            new_canonical_items[read_symbol] = {production}
+            new_canonical_items[read_symbol] = [production]
         else:
-            new_canonical_items[read_symbol].add(production)
+            new_canonical_items[read_symbol].append(production)
 
         canonical_item_index += 1
 
@@ -283,7 +285,7 @@ def mergeCanonicalItems(
             for production in canonical_item:
 
                 # Checa pra ver se está no item novo específico
-                if production in canonical_item[symbol]:
+                if production in new_canonical_items[symbol]:
                     # Conta
                     count += 1
                     break
@@ -303,11 +305,11 @@ def mergeCanonicalItems(
 
 def buildCanonicalItems(grammar_reference):
 
-    canonical_item = grammar_reference.productions[0]
+    canonical_item = [grammar_reference.productions[0]]
     canonical_items = list()
     item_index = 0
     items_transitions = list()  # Goto-table list[tuple[Symbol, item_destination]]
-    while item_index < len(new_canonical_items):
+    while True:
 
         # Se o item canonico for válido
         if canonical_item != None:
@@ -326,7 +328,7 @@ def buildCanonicalItems(grammar_reference):
             )
 
             # Adiciona as transições do último item canonico
-            items_transitions.append[item_transitions]
+            items_transitions.append(item_transitions)
 
         # Passa para o próximo item canônico não processado
         item_index += 1
@@ -334,7 +336,8 @@ def buildCanonicalItems(grammar_reference):
         # Move o pointeiro
         canonical_item = lookAhead(canonical_items[item_index])
 
-    return (canonical_items, items_transitions)
+        if not item_index < len(new_canonical_items):
+            return (canonical_items, items_transitions)
 
 
 def markShifts(items_transitions, buildSLRTableTerminals):

@@ -9,9 +9,9 @@ from formals.Parser import (
     closure,
     lookAhead,
     readCanonicalItemEndOfSentence,
-    readGM
+    readGM,
+    buildCanonicalItems,
 )
-
 
 
 def test_read_GM():
@@ -21,8 +21,11 @@ def test_read_GM():
         {
             "S": {"Bd", "&"},
             "B": {"Ab", "Bc"},
-            "A": {"Sa", "&",}
+            "A": {
+                "Sa",
+                "&",
             },
+        },
         {"S", "A", "B"},
         {"&", "d", "c", "a", "b"},
     )
@@ -321,6 +324,37 @@ def test_readCanonicalItemEndOfSentence_with_slides_item5() -> bool:
     )
 
     assert expected == result
+
+
+def test_buildCanonicalItems_with_slide_grammar():
+    noterminals = {"S", "A", "B"}
+    terminals = {"and", "or", "not", "True", "False"}
+    initial = "S"
+    productions = {
+        "S": ["SorA", "A"],
+        "A": ["AandB", "B"],
+        "B": ["notB", "(S)", "True", "False"],
+    }
+
+    # noterminals = {"E", "T", "F"}
+    # terminals = {"id", "(", ")", "+", "*"}
+    # initial = "E"
+    # productions = {"E": ["E+T", "T"],
+    #                "T": ["T*F", "F"],
+    #                "F": ["(E)", "id"]}
+
+    grammar = GM(noterminals, terminals, initial, productions)
+
+    # Estende a gramática e a congela
+    grammar_reference = extendGrammar(grammar)
+
+    # Construir itens canônicos (automato)
+    canonical_items, items_transitions = buildCanonicalItems(grammar_reference)
+
+    print(items_transitions)
+    print(canonical_items)
+
+    assert 1 == 0
 
 
 '''

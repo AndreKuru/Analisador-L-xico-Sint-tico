@@ -337,5 +337,3 @@ class FA:
 
             if type(i) == int:
                 self.transitions.remove(i)
-
-

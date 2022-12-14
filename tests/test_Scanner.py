@@ -60,6 +60,7 @@ def test_readFA_with_afnde():
 
 """
 
+
 def test_automataUnion():
     automatas = []
     automatas.append(

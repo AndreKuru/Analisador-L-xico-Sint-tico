@@ -49,7 +49,6 @@ class GM:
                         else:
                             a.append(nonterminal[j][index + 1])
 
-
                     id += 1
                     if index >= 0:
                         if len(nonterminal[id]) > 1:
