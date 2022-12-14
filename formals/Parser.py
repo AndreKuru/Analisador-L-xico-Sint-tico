@@ -408,6 +408,33 @@ def markGoTos(slr_table_noterminals, items_transitions):
 
     return slr_table_noterminals
 
+def printSLRTable(ParserSLR):
+    
+    print('----------TABELA SLR(1)----------\n')
+    print('-------------AÇÕES---------------\n')
+    print("|  |", end='')
+    for terminal in (ParserSLR.terminals):
+        print("|{}|".format(terminal), end='')
+    print()
+
+    for item in range(len(ParserSLR.slr_table_terminals)):
+        print(item, end='')
+        for action in ParserSLR.slr_table_terminals[item]:
+            print(action, end='')
+    print()
+    
+    print('--------------DESVIOS--------------\n')
+    print("|  |", end='')
+    for noterminal in (ParserSLR.noterminals):
+        print("|{}|".format(noterminal), end='')
+    print()
+
+    for item in range(len(ParserSLR.slr_table_noterminals)):
+        print(item, end='')
+        for deviation in ParserSLR.slr_table_noterminals[item]:
+            print(deviation, end='')
+    print()
+
 
 @dataclass
 class ParserSLR:
