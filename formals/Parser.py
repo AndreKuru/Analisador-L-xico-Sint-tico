@@ -702,8 +702,8 @@ class ParserSLR:
                 (index_head, body) = self.grammar_reference.productions[action[1]]
 
                 # Substitui na lista de símbolos o corpo da produção pela cabeça
-                # if symbols_stack[-1] == body:
-                symbols_stack.pop()
+                for _ in range(len(body) - 1):
+                    symbols_stack.pop()
                 head = self.grammar_reference.noterminals[index_head]
                 symbols_stack.append(head)
 
