@@ -649,3 +649,72 @@ class ParserSLR:
         # Demais entradas na tabela são erros
 
         # Estado inicial é o que contém a produção pelo símbolo inicial da gramática estendida
+
+    # Transforma um arquivo de texto contendo pares de tokens e seus respectivos indices
+    # em uma lista de tuplas de (token, índice)
+    def readToken(self, file):
+
+        # Abre o arquivo, lê as linhas e as separa
+        file = open(f"tests/{file}", "r")
+        file_rows = file.readlines()
+        file_rows = [rows.rstrip("\n") for rows in file_rows]
+
+        # Transforma cada linha em tuplas de (token, índice)
+        token_table = list()
+        for row in file_rows:
+            token_table.append((row[0], row[1]))
+
+        return token_table
+
+    # Verifica-se o analisador aceita uma determinada tabela de tokens        
+    def run(self, token_table):
+
+        # Cria-se uma pilha de execução e uma pilha de símbolos
+        stack = [0]
+        symbols_stack = list()
+
+        action = tuple()
+
+        index = 0
+        # Enquanto não termina de ler a tabela e não atinge o estado de aceitação ou erro
+        while (index < len(token_table)):
+
+            # Seleciona o token
+            (token, _) = token_table[index]
+            terminal_index = self.grammar_reference.terminals.index(token)
+
+            # Verifica qual ação deve executar no estado atual para o token lido
+            current_state = stack[-1]
+            action = self.slr_table_terminals[current_state][terminal_index]
+
+            # Aceita a entrada
+            if action == "acc":
+                return True
+
+            # Se for um shift, empilha o número do estado, consome o token e avança a cabeça de leitura
+            if action[0] == "s":
+                stack.append(action[1])
+                symbols_stack.append(token)
+                index += 1
+            
+            # Se for um reduce, busca a produção correspondente
+            if action[0] == "r":
+                (index_head, body) = self.grammar_reference.productions[action[1]]
+
+                # Substitui na lista de símbolos o corpo da produção pela cabeça
+                # if symbols_stack[-1] == body:
+                symbols_stack.pop()
+                head = self.grammar_reference.noterminals[index_head]
+                symbols_stack.append(head)
+
+                # Remove da pilha de execução uma quantidade de estados
+                # igual à cardinalidade do corpo da produção
+                # -1 por conta do ponto
+                for _ in range(len(body) - 1):
+                    stack.pop()
+
+                # Consulta a tabela de desvios e empilha o estado retornado
+                new_state = self.slr_table_noterminals[stack[-1]][index_head]
+                stack.append(new_state)
+        
+        return False
