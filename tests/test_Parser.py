@@ -135,7 +135,7 @@ def test_partial_extendedGrammar_with_grammar_from_slides():
     expected = FrozenGM(expected_frozen_noterminals, expected_frozen_terminals, expected_frozen_initial, expected_frozen_productions)
 
     
-    #assert deindexProductions(frozen_grammar) == deindexProductions(expected)
+    #assert deindexGrammar(frozen_grammar) == deindexGrammar(expected)
 
     # Cria nova produção com o novo símbolo inicial
     new_initial_production = newInitialProduction(grammar)
@@ -220,7 +220,7 @@ def test_extendGrammar_with_grammar_from_slides():
         frozen_grammar.productions
     )
     
-    #assert deindexProductions(frozen_grammar) == deindexProductions(expected)
+    #assert deindexGrammar(frozen_grammar) == deindexGrammar(expected)
     assert frozen_grammar == expected
 
 
@@ -398,7 +398,7 @@ def test_readCanonicalItemEndOfSentence_with_slides_item5() -> bool:
     assert expected == result
 
 
-def test_deindexProductions_with_slide_gramar():
+def test_deindexGrammar_with_slide_gramar():
     noterminals = ["E▶️", "E", "T", "F"]
 
     terminals = ["id", "+", "*", "(", ")"]
@@ -462,11 +462,123 @@ def test_buildCanonicalItems_with_slide_grammar():
 
     #    canonical_items: list[list[tuple[int, list[str | int]]]] = field(init=False)
 
-    assert 1 == 0
 
+    excepted_canonical_items = [
+        # Item 0
+        [
+        ("E▶️", MARK_POINTER + "E" + END_OF_SENTENCE),
+        ("E", MARK_POINTER + "E+T" + END_OF_SENTENCE),
+        ("E", MARK_POINTER + "T" + END_OF_SENTENCE),
+        ("T", MARK_POINTER + "T*F" + END_OF_SENTENCE),
+        ("T", MARK_POINTER + "F" + END_OF_SENTENCE),
+        ("F", MARK_POINTER + "(E)" + END_OF_SENTENCE),
+        ("F", MARK_POINTER + "id" + END_OF_SENTENCE),
+        ],
+        # Item 1
+        [
+        ("E▶️", "E" + MARK_POINTER + END_OF_SENTENCE),
+        ("E", "E" + MARK_POINTER + "+T" + END_OF_SENTENCE),
+        ],
+        # Item 2
+        [
+        ("E", "T" + MARK_POINTER + END_OF_SENTENCE),
+        ("T", "T" + MARK_POINTER + "*F" + END_OF_SENTENCE),
+        ],
+        # Item 3
+        [
+        ("T", "F" + MARK_POINTER + END_OF_SENTENCE),
+        ],
+        # Item 4
+        [
+        ("F", "(" + MARK_POINTER + "E)" + END_OF_SENTENCE),
+        ("E", MARK_POINTER + "E+T" + END_OF_SENTENCE),
+        ("E", MARK_POINTER + "T" + END_OF_SENTENCE),
+        ("T", MARK_POINTER + "T*F" + END_OF_SENTENCE),
+        ("T", MARK_POINTER + "F" + END_OF_SENTENCE),
+        ("F", MARK_POINTER + "(E)" + END_OF_SENTENCE),
+        ("F", MARK_POINTER + "id" + END_OF_SENTENCE),
+        ],
+        # Item 5
+        [
+        ("F", "id" + MARK_POINTER + END_OF_SENTENCE),
+        ],
+        # Item 6
+        [
+        ("E", "E+" + MARK_POINTER + "T" + END_OF_SENTENCE),
+        ("T", MARK_POINTER + "T*F" + END_OF_SENTENCE),
+        ("T", MARK_POINTER + "F" + END_OF_SENTENCE),
+        ("F", MARK_POINTER + "(E)" + END_OF_SENTENCE),
+        ("F", MARK_POINTER + "id" + END_OF_SENTENCE),
+        ],
+        # Item 7
+        [
+        ("T", "T*" + MARK_POINTER + "F" + END_OF_SENTENCE),
+        ("F", MARK_POINTER + "(E)" + END_OF_SENTENCE),
+        ("F", MARK_POINTER + "id" + END_OF_SENTENCE),
+        ],
+        # Item 8
+        [
+        ("E", "E" + MARK_POINTER + "+T" + END_OF_SENTENCE),
+        ("F", "(E" + MARK_POINTER + ")" + END_OF_SENTENCE),
+        ],
+        # Item 9
+        [
+        ("E", "E+T" + MARK_POINTER + END_OF_SENTENCE),
+        ("T", "T" + MARK_POINTER + "*F" + END_OF_SENTENCE),
+        ],
+        # Item 10
+        [
+        ("T", "T*F" + MARK_POINTER + END_OF_SENTENCE),
+        ],
+        # Item 11
+        [
+        ("F", "(E)" + MARK_POINTER + END_OF_SENTENCE),
+        ],
+    ]
 
+    # items_transitions = list()  # Goto-table list[list[tuple[Symbol, item_destination]]]
 
+    expeted_items_transitions = [
+        [
+            (0, "E", 1),
+            (0, "T", 2),
+            (0, "F", 3),
+            (0, "(", 4),
+            (0, "id", 5),
+        ],
+        [
+            (1, "+", 6),
+        ],
+        [
+            (2, "*", 7),
+        ],
+            (4, "E", 8),
+            (4, "T", 2),
+            (4, "F", 3),
+            (4, "(", 4),
+            (4, "id", 5),
+        [
+            (6, "T", 9),
+            (6, "F", 3),
+            (6, "(", 4),
+            (6, "id", 5),
+        ],
+        [
+            (7, "F", 10),
+            (7, "(", 4),
+            (7, "id", 5),
+        ],
+        [
+            (8, "+", 6),
+            (8, ")", 11),
+        ],
+        [
+            (9, "*", 7),
+        ],
+    ]
 
+    assert canonical_items == excepted_canonical_items
+    assert items_transitions == expeted_items_transitions
 
 '''
 
