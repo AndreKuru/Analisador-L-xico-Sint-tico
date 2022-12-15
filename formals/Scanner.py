@@ -114,13 +114,25 @@ class Scanner:
 
             entry = result[2]
 
-        # TODO Invocar WriteTablesToFiles()
+        self.writeTablesToFiles()
 
     def clearTables(self):
         self.token_table = list()
         self.lexemas_table = list()
 
-    # TODO def writeTablesToFiles():
+    def writeTablesToFiles(self):
+
+        tokens_file = open("tests/token_table.txt", "w+")
+        for (token, token_id) in self.token_table:
+            tokens_file.write("{} {}\n".format(token, token_id))
+        tokens_file.close()
+
+        lexemas_file = open("tests/lexema_table.txt", "w+")
+        for lexema in self.lexema_table:
+            lexemas_file.write("{}\n".format(lexema))
+        lexemas_file.close()
+
+        
 
 
 # a1 = readFA(sys.argv[1])
