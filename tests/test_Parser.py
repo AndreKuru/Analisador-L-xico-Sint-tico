@@ -11,7 +11,8 @@ from formals.Parser import (
     readCanonicalItemEndOfSentence,
     readGM,
     buildCanonicalItems,
-    deindexProductions
+    deindexProductions,
+    newInitialProduction
 )
 
 
@@ -106,6 +107,75 @@ def test_indexBodies_with_slides_gramar():
 
     assert indexed_productions == expected
 
+def test_partial_extendedGrammar_with_grammar_from_slides():
+    noterminals = {"E", "T", "F"}
+    terminals = {"id", "(", ")", "+", "*"}
+    initial = "E"
+    productions = {"E": ["E+T", "T"],
+                   "T": ["T*F", "F"],
+                   "F": ["(E)", "id"]}
+
+    grammar = GM(noterminals, terminals, initial, productions)
+    
+    expected_frozen_noterminals = list({'E', 'T', 'F'})
+    expected_frozen_noterminals.sort()
+    expected_frozen_noterminals = ['E▶️'] + expected_frozen_noterminals
+    expected_frozen_terminals = list({'id', '+', '*', '(', ')'})
+    expected_frozen_terminals.sort()
+    expected_frozen_terminals += [END_OF_SENTENCE]
+    expected_frozen_initial = 'E▶️'
+    expected_frozen_productions = [(expected_frozen_initial, MARK_POINTER + initial + END_OF_SENTENCE)]
+    for head in productions:
+        for body in productions[head]:
+            expected_frozen_productions.append((head, MARK_POINTER + body + END_OF_SENTENCE))
+
+
+    expected = FrozenGM(expected_frozen_noterminals, expected_frozen_terminals, expected_frozen_initial, expected_frozen_productions)
+
+    
+    #assert deindexProductions(frozen_grammar) == deindexProductions(expected)
+
+    # Cria nova produção com o novo símbolo inicial
+    new_initial_production = newInitialProduction(grammar)
+    new_initial_noterminal = new_initial_production[0]
+
+    # Acrescenta-o na lista de não terminais
+    noterminals = [new_initial_noterminal] + list(grammar.noterminals)
+    terminals = list(grammar.terminals) + [END_OF_SENTENCE]
+
+    # Acrescenta a nova produção às produções
+    productions = list()
+    productions.append(new_initial_production)
+
+    # Converte cada produção de itens de dicionário para tuplas
+    for head in grammar.productions:
+        for body in grammar.productions[head]:
+            # Marca produções com um ponto e com o símbolo de final de sentença
+            productions.append((head, MARK_POINTER + body + END_OF_SENTENCE))
+
+    indexed_productions = indexProductions(noterminals, terminals, productions)
+
+    frozen_grammar = FrozenGM(noterminals, terminals, new_initial_noterminal, indexed_productions)
+
+    frozen_grammar = deindexProductions(frozen_grammar)
+
+    frozen_grammar_noterminals = frozen_grammar.noterminals[1:]
+    frozen_grammar_noterminals.sort()
+    frozen_grammar_noterminals = [frozen_grammar.noterminals[0]] + frozen_grammar_noterminals
+
+    frozen_grammar_terminals = frozen_grammar.terminals[:len(frozen_grammar.terminals) - 1]
+    frozen_grammar_terminals.sort()
+    frozen_grammar_terminals += [frozen_grammar.terminals[len(frozen_grammar.terminals) - 1]]
+
+    frozen_grammar = FrozenGM(
+        frozen_grammar_noterminals,
+        frozen_grammar_terminals,
+        frozen_grammar.initial,
+        frozen_grammar.productions
+    )
+
+    assert  frozen_grammar == expected
+
 
 
 def test_extendGrammar_with_grammar_from_slides():
@@ -126,16 +196,17 @@ def test_extendGrammar_with_grammar_from_slides():
     expected_frozen_terminals.sort()
     expected_frozen_terminals += [END_OF_SENTENCE]
     expected_frozen_initial = 'E▶️'
-    expected_frozen_productions = [(expected_frozen_initial, MARK_POINTER + initial)]
+    expected_frozen_productions = [(expected_frozen_initial, MARK_POINTER + initial + END_OF_SENTENCE)]
     for head in productions:
         for body in productions[head]:
             expected_frozen_productions.append((head, MARK_POINTER + body + END_OF_SENTENCE))
 
-    expected_frozen_productions = indexProductions(expected_frozen_noterminals, expected_frozen_terminals, expected_frozen_productions)
-
     expected = FrozenGM(expected_frozen_noterminals, expected_frozen_terminals, expected_frozen_initial, expected_frozen_productions)
 
     frozen_grammar = extendGrammar(gm)
+
+    frozen_grammar = deindexProductions(frozen_grammar)
+
     frozen_grammar_noterminals = frozen_grammar.noterminals[1:]
     frozen_grammar_noterminals.sort()
     frozen_grammar_noterminals = [frozen_grammar.noterminals[0]] + frozen_grammar_noterminals
@@ -150,6 +221,8 @@ def test_extendGrammar_with_grammar_from_slides():
         frozen_grammar.initial,
         frozen_grammar.productions
     )
+    
+    #assert deindexProductions(frozen_grammar) == deindexProductions(expected)
     assert frozen_grammar == expected
 
 
@@ -160,23 +233,23 @@ def test_indexProductions():
     terminals = ["id", "+", "*", "(", ")"]
 
     marked_productions = [
-        ("E▶️", ".E"),
-        ("E", ".E+T"),
-        ("E", ".T"),
-        ("T", ".T*F"),
-        ("T", ".F"),
-        ("F", ".(E)"),
-        ("F", ".id"),
+        ("E▶️", MARK_POINTER + "E"),
+        ("E", MARK_POINTER + "E+T"),
+        ("E", MARK_POINTER + "T"),
+        ("T", MARK_POINTER + "T*F"),
+        ("T", MARK_POINTER + "F"),
+        ("F", MARK_POINTER + "(E)"),
+        ("F", MARK_POINTER + "id"),
     ]
 
     expected = [
-        (0, [".", 1]),
-        (1, [".", 1, 5, 2]),
-        (1, [".", 2]),
-        (2, [".", 2, 6, 3]),
-        (2, [".", 3]),
-        (3, [".", 7, 1, 8]),
-        (3, [".", 4]),
+        (0, [MARK_POINTER, 1]),
+        (1, [MARK_POINTER, 1, 5, 2]),
+        (1, [MARK_POINTER, 2]),
+        (2, [MARK_POINTER, 2, 6, 3]),
+        (2, [MARK_POINTER, 3]),
+        (3, [MARK_POINTER, 7, 1, 8]),
+        (3, [MARK_POINTER, 4]),
     ]
 
     indexed_productions = indexProductions(noterminals, terminals, marked_productions)
@@ -384,7 +457,7 @@ def test_deindexProductions_with_slide_gramar():
 
     grammar = FrozenGM(noterminals, terminals, initial, productions)
 
-    expected = [
+    expected_productions = [
         ("E▶️", MARK_POINTER + "E"),
         ("E", MARK_POINTER + "E+T"),
         ("E", MARK_POINTER + "T"),
@@ -395,6 +468,7 @@ def test_deindexProductions_with_slide_gramar():
     ]
 
     grammar_deindexed = deindexProductions(grammar)
+    expected = FrozenGM(noterminals, terminals, initial, expected_productions)
 
     assert grammar_deindexed == expected
 

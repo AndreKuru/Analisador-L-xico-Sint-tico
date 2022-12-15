@@ -101,7 +101,7 @@ def newInitialProduction(grammar):
     # Acrescenta um novo símbolo inicial
     initial = grammar.initial + "▶️"
 
-    return (initial, MARK_POINTER + grammar.initial)
+    return (initial, MARK_POINTER + grammar.initial + END_OF_SENTENCE)
 
 
 def indexProductions(noterminals, terminals, marked_productions):
@@ -155,7 +155,8 @@ def deindexProductions(grammar):
         new_body = "".join(new_body)
         new_productions.append((new_head, new_body))
 
-    return new_productions
+    new_grammar = FrozenGM(grammar.noterminals, grammar.terminals, grammar.initial, new_productions)
+    return new_grammar
             
 def extendGrammar(grammar):
 
