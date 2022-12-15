@@ -11,8 +11,10 @@ from formals.Parser import (
     readCanonicalItemEndOfSentence,
     readGM,
     buildCanonicalItems,
-    deindexProductions,
-    newInitialProduction
+    deindexGrammar,
+    deindexCanonicalItems,
+    newInitialProduction,
+ 
 )
 
 
@@ -201,7 +203,7 @@ def test_extendGrammar_with_grammar_from_slides():
 
     frozen_grammar = extendGrammar(gm)
 
-    frozen_grammar = deindexProductions(frozen_grammar)
+    frozen_grammar = deindexGrammar(frozen_grammar)
 
     frozen_grammar_noterminals = frozen_grammar.noterminals[1:]
     frozen_grammar_noterminals.sort()
@@ -425,7 +427,7 @@ def test_deindexProductions_with_slide_gramar():
         ("F", MARK_POINTER + "id"),
     ]
 
-    grammar_deindexed = deindexProductions(grammar)
+    grammar_deindexed = deindexGrammar(grammar)
     expected = FrozenGM(noterminals, terminals, initial, expected_productions)
 
     assert grammar_deindexed == expected
@@ -677,3 +679,46 @@ def test_generateSLRParser_with_slides_gramar():
 
     assert parser == expected
 '''
+
+def test_deindexCanonicalItems_with_slides_grammar():
+
+    noterminals = ["E▶️", "E", "T", "F"]
+    terminals = ["id", "(", ")", "+", "*", END_OF_SENTENCE]
+    initial = "E▶️"
+    productions = {}
+
+    grammar_reference = FrozenGM(noterminals, terminals, initial, productions)
+
+    canonical_items = [
+        [  # item 1
+            (0, [1, MARK_POINTER, len(grammar_reference.noterminals)
+            + len(grammar_reference.terminals)
+            - 1]),
+            (1, [1, MARK_POINTER, 5, 2, len(grammar_reference.noterminals)
+            + len(grammar_reference.terminals)
+            - 1])
+        ],
+        [  # item 2
+            (1, [2, MARK_POINTER, len(grammar_reference.noterminals)
+            + len(grammar_reference.terminals)
+            - 1]),
+            (2, [2, MARK_POINTER, 6, 3, len(grammar_reference.noterminals)
+            + len(grammar_reference.terminals)
+            - 1])
+        ]
+    ]
+
+    expected = [
+        [  # item 1
+            ("E▶️", "E·$"),
+            ("E", "E·+T$"),
+        ],
+        [  # item 2
+            ("E", "T·$"),
+            ("T", "T·*F$"),
+        ],
+    ]
+
+    deindexed_canonical_items = deindexCanonicalItems(canonical_items, grammar_reference)
+
+    assert deindexed_canonical_items == expected
