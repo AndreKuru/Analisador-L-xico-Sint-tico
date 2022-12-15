@@ -133,7 +133,7 @@ def indexProductions(noterminals, terminals, marked_productions):
 
     return indexed_productions
 
-def deindexProductions(grammar):
+def deindexGrammar(grammar):
     new_productions = list()
     for (head, body) in grammar.productions:
         new_head = grammar.noterminals[head]
@@ -152,6 +152,18 @@ def deindexProductions(grammar):
 
     new_grammar = FrozenGM(grammar.noterminals, grammar.terminals, grammar.initial, new_productions)
     return new_grammar
+
+def deindexCanonicalItems(canonical_items, grammar_reference):
+    deindexed_canonical_items = list()
+    for canonical_item in canonical_items:
+        intermediate_grammar = FrozenGM(grammar_reference.noterminals,
+                                        grammar_reference.terminals,
+                                        grammar_reference.initial,
+                                        canonical_item)
+        deindexed_canonical_item = deindexGrammar(intermediate_grammar)
+        deindexed_canonical_items.append(deindexed_canonical_item)
+
+    return deindexed_canonical_items
             
 def extendGrammar(grammar):
 

@@ -396,44 +396,6 @@ def test_readCanonicalItemEndOfSentence_with_slides_item5() -> bool:
     assert expected == result
 
 
-def test_buildCanonicalItems_with_slide_grammar():
-    '''
-    noterminals = {"S", "A", "B"}
-    terminals = {"and", "or", "not", "True", "False"}
-    initial = "S"
-    productions = {
-        "S": ["SorA", "A"],
-        "A": ["AandB", "B"],
-        "B": ["notB", "(S)", "True", "False"],
-    }
-    '''
-
-    noterminals = {"E", "T", "F"}
-    terminals = {"id", "(", ")", "+", "*"}
-    initial = "E"
-    productions = {"E": ["E+T", "T"],
-                   "T": ["T*F", "F"],
-                   "F": ["(E)", "id"]}
-
-    grammar = GM(noterminals, terminals, initial, productions)
-
-    # Estende a gramática e a congela
-    grammar_reference = extendGrammar(grammar)
-
-    print(grammar_reference.noterminals)
-    print(grammar_reference.terminals)
-    print(grammar_reference.initial)
-    print(grammar_reference.productions)
-    print()
-
-    # Construir itens canônicos (automato)
-    canonical_items, items_transitions = buildCanonicalItems(grammar_reference)
-
-    '''print(items_transitions)
-    print(canonical_items)'''
-
-    assert 1 == 0
-
 def test_deindexProductions_with_slide_gramar():
     noterminals = ["E▶️", "E", "T", "F"]
 
@@ -467,6 +429,39 @@ def test_deindexProductions_with_slide_gramar():
     expected = FrozenGM(noterminals, terminals, initial, expected_productions)
 
     assert grammar_deindexed == expected
+
+def test_buildCanonicalItems_with_slide_grammar():
+    '''
+    noterminals = {"S", "A", "B"}
+    terminals = {"and", "or", "not", "True", "False"}
+    initial = "S"
+    productions = {
+        "S": ["SorA", "A"],
+        "A": ["AandB", "B"],
+        "B": ["notB", "(S)", "True", "False"],
+    }
+    '''
+
+    noterminals = {"E", "T", "F"}
+    terminals = {"id", "(", ")", "+", "*"}
+    initial = "E"
+    productions = {"E": ["E+T", "T"],
+                   "T": ["T*F", "F"],
+                   "F": ["(E)", "id"]}
+
+    grammar = GM(noterminals, terminals, initial, productions)
+
+    # Estende a gramática e a congela
+    grammar_reference = extendGrammar(grammar)
+
+
+    # Construir itens canônicos (automato)
+    canonical_items, items_transitions = buildCanonicalItems(grammar_reference)
+
+    #    canonical_items: list[list[tuple[int, list[str | int]]]] = field(init=False)
+
+    assert 1 == 0
+
 
 
 
