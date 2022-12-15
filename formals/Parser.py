@@ -150,8 +150,9 @@ def deindexProductions(grammar):
                 noterminal = grammar.noterminals[number]
                 new_body.append(noterminal)
             else:
-                terminal = grammar.terminals[number]
+                terminal = grammar.terminals[number - len(grammar.noterminals)]
                 new_body.append(terminal)
+        new_body = "".join(new_body)
         new_productions.append((new_head, new_body))
 
     return new_productions

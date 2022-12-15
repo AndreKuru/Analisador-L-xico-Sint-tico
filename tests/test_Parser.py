@@ -11,6 +11,7 @@ from formals.Parser import (
     readCanonicalItemEndOfSentence,
     readGM,
     buildCanonicalItems,
+    deindexProductions
 )
 
 
@@ -392,6 +393,10 @@ def test_deindexProductions_with_slide_gramar():
         ("F", MARK_POINTER + "(E)"),
         ("F", MARK_POINTER + "id"),
     ]
+
+    grammar_deindexed = deindexProductions(grammar)
+
+    assert grammar_deindexed == expected
 
 
 
