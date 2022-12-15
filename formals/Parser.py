@@ -138,7 +138,24 @@ def indexProductions(noterminals, terminals, marked_productions):
 
     return indexed_productions
 
+def deindexProductions(grammar):
+    new_productions = list()
+    for (head, body) in grammar.productions:
+        new_head = grammar.noterminals[head]
+        new_body = list()
+        for number in body:
+            if number == MARK_POINTER:
+                new_body.append(number)
+            elif number < len(grammar.noterminals):
+                noterminal = grammar.noterminals[number]
+                new_body.append(noterminal)
+            else:
+                terminal = grammar.terminals[number]
+                new_body.append(terminal)
+        new_productions.append((new_head, new_body))
 
+    return new_productions
+            
 def extendGrammar(grammar):
 
     # Cria nova produção com o novo símbolo inicial

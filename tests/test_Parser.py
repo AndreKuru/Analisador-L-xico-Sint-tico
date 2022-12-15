@@ -106,13 +106,15 @@ def test_indexBodies_with_slides_gramar():
     assert indexed_productions == expected
 
 
-"""
+
 def test_extendGrammar_with_grammar_from_slides():
 
     noterminals = {"E", "T", "F"}
-    terminals = {"id", "+", "*", "(", ")"}
+    terminals = {"id", "(", ")", "+", "*"}
     initial = "E"
-    productions = {"E": {"E+T", "T"}, "T": {"T*F", "F"}, "F": {"(E)", "id"}}
+    productions = {"E": ["E+T", "T"],
+                   "T": ["T*F", "F"],
+                   "F": ["(E)", "id"]}
 
     gm = GM(noterminals, terminals, initial, productions)
     
@@ -123,7 +125,7 @@ def test_extendGrammar_with_grammar_from_slides():
     expected_frozen_terminals.sort()
     expected_frozen_terminals += [END_OF_SENTENCE]
     expected_frozen_initial = 'E▶️'
-    expected_frozen_productions = [(expected_frozen_initial, initial)]
+    expected_frozen_productions = [(expected_frozen_initial, MARK_POINTER + initial)]
     for head in productions:
         for body in productions[head]:
             expected_frozen_productions.append((head, MARK_POINTER + body + END_OF_SENTENCE))
@@ -148,8 +150,6 @@ def test_extendGrammar_with_grammar_from_slides():
         frozen_grammar.productions
     )
     assert frozen_grammar == expected
-
-"""
 
 
 def test_indexProductions():
@@ -327,6 +327,7 @@ def test_readCanonicalItemEndOfSentence_with_slides_item5() -> bool:
 
 
 def test_buildCanonicalItems_with_slide_grammar():
+    '''
     noterminals = {"S", "A", "B"}
     terminals = {"and", "or", "not", "True", "False"}
     initial = "S"
@@ -335,24 +336,31 @@ def test_buildCanonicalItems_with_slide_grammar():
         "A": ["AandB", "B"],
         "B": ["notB", "(S)", "True", "False"],
     }
+    '''
 
-    # noterminals = {"E", "T", "F"}
-    # terminals = {"id", "(", ")", "+", "*"}
-    # initial = "E"
-    # productions = {"E": ["E+T", "T"],
-    #                "T": ["T*F", "F"],
-    #                "F": ["(E)", "id"]}
+    noterminals = {"E", "T", "F"}
+    terminals = {"id", "(", ")", "+", "*"}
+    initial = "E"
+    productions = {"E": ["E+T", "T"],
+                   "T": ["T*F", "F"],
+                   "F": ["(E)", "id"]}
 
     grammar = GM(noterminals, terminals, initial, productions)
 
     # Estende a gramática e a congela
     grammar_reference = extendGrammar(grammar)
 
+    print(grammar_reference.noterminals)
+    print(grammar_reference.terminals)
+    print(grammar_reference.initial)
+    print(grammar_reference.productions)
+    print()
+
     # Construir itens canônicos (automato)
     canonical_items, items_transitions = buildCanonicalItems(grammar_reference)
 
-    print(items_transitions)
-    print(canonical_items)
+    '''print(items_transitions)
+    print(canonical_items)'''
 
     assert 1 == 0
 
