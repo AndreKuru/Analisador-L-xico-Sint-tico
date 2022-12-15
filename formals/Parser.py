@@ -106,22 +106,17 @@ def newInitialProduction(grammar):
 
 def indexProductions(noterminals, terminals, marked_productions):
 
-    # Separa as produções em cabeça e corpos
-    heads = list()
+    # Converte os corpos de produção de strings para listas de strings
     bodies = list()
 
-    # Converte os corpos de produção de strings para listas de strings
     for (_, body) in marked_productions:
         bodies.append([body])
 
-    # Seleciona um não terminal
-    for noterminal_index in range(len(noterminals)):
-        noterminal = noterminals[noterminal_index]
 
-        # Substitui as cabeças pelos seus respectivos índices
-        for (head, _) in marked_productions:
-            if head == noterminal:
-                heads.append(noterminal_index)
+    heads = list()
+    # Lista as cabeças
+    for (head, _) in marked_productions:
+        heads.append(noterminals.index(head))
 
     # Substitui nos corpos das produções, os não terminais pelos seus respectivos índices
     bodies = indexBodies(noterminals, bodies, 0)

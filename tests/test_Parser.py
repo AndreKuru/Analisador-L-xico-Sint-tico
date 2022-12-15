@@ -153,11 +153,7 @@ def test_partial_extendedGrammar_with_grammar_from_slides():
             # Marca produções com um ponto e com o símbolo de final de sentença
             productions.append((head, MARK_POINTER + body + END_OF_SENTENCE))
 
-    indexed_productions = indexProductions(noterminals, terminals, productions)
-
-    frozen_grammar = FrozenGM(noterminals, terminals, new_initial_noterminal, indexed_productions)
-
-    frozen_grammar = deindexProductions(frozen_grammar)
+    frozen_grammar = FrozenGM(noterminals, terminals, new_initial_noterminal, productions)
 
     frozen_grammar_noterminals = frozen_grammar.noterminals[1:]
     frozen_grammar_noterminals.sort()
