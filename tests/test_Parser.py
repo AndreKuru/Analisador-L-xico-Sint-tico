@@ -364,6 +364,37 @@ def test_buildCanonicalItems_with_slide_grammar():
 
     assert 1 == 0
 
+def test_deindexProductions_with_slide_gramar():
+    noterminals = ["E▶️", "E", "T", "F"]
+
+    terminals = ["id", "+", "*", "(", ")"]
+
+    initial = "E▶️"
+
+    productions = [
+        (0, [MARK_POINTER, 1]),
+        (1, [MARK_POINTER, 1, 5, 2]),
+        (1, [MARK_POINTER, 2]),
+        (2, [MARK_POINTER, 2, 6, 3]),
+        (2, [MARK_POINTER, 3]),
+        (3, [MARK_POINTER, 7, 1, 8]),
+        (3, [MARK_POINTER, 4]),
+    ]
+
+    grammar = FrozenGM(noterminals, terminals, initial, productions)
+
+    expected = [
+        ("E▶️", MARK_POINTER + "E"),
+        ("E", MARK_POINTER + "E+T"),
+        ("E", MARK_POINTER + "T"),
+        ("T", MARK_POINTER + "T*F"),
+        ("T", MARK_POINTER + "F"),
+        ("F", MARK_POINTER + "(E)"),
+        ("F", MARK_POINTER + "id"),
+    ]
+
+
+
 
 '''
 
